@@ -26,6 +26,20 @@ export type HelloApiV1HelloGetResponses = {
 
 export type HelloApiV1HelloGetResponse = HelloApiV1HelloGetResponses[keyof HelloApiV1HelloGetResponses];
 
+export type MockSseStreamApiV1AiChatMockGetData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/ai-chat/mock';
+};
+
+export type MockSseStreamApiV1AiChatMockGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
 export type ClientOptions = {
     baseUrl: `${string}://${string}` | (string & {});
 };

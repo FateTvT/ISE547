@@ -1,43 +1,215 @@
-import { useState } from 'react';
-import { Button, Text } from '@chakra-ui/react';
-import { helloApiV1HelloGet } from '../client/sdk.gen';
-import type { HelloApiV1HelloGetResponses } from '../client/types.gen';
+import { useEffect, useRef, useState } from 'react';
+import { Button, Input, Text } from '@chakra-ui/react';
+import { mockSseStreamApiV1AiChatMockGet } from '../client/sdk.gen';
 
-export default function HelloPage() {
-  const [response, setResponse] = useState<HelloApiV1HelloGetResponses[200] | null>(null);
+type ChatRole = 'user' | 'assistant';
+
+type ChatMessage = {
+  id: string;
+  role: ChatRole;
+  content: string;
+};
+
+type MockStreamMessage = {
+  index: number;
+  message: string;
+};
+
+function isMockStreamMessage(value: unknown): value is MockStreamMessage {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const candidate = value as Record<string, unknown>;
+  return (
+    typeof candidate.index === 'number' &&
+    typeof candidate.message === 'string'
+  );
+}
+
+export default function AIChatPage() {
+  const [prompt, setPrompt] = useState('');
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  const handleClick = async () => {
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
+
+  const stopStream = () => {
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
+    setLoading(false);
+  };
+
+  const handleSend = async () => {
+    const trimmedPrompt = prompt.trim();
+    if (!trimmedPrompt || loading) {
+      return;
+    }
+
+    const controller = new AbortController();
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = controller;
+
+    setErr(null);
+    setLoading(true);
+    setMessages([
+      {
+        id: `user-${Date.now()}`,
+        role: 'user',
+        content: trimmedPrompt,
+      },
+    ]);
+
     try {
-      setLoading(true);
-      setErr(null);
-      const result = await helloApiV1HelloGet();
-      setResponse(result.data ?? null);
-    } catch (error: any) {
-      console.error('API 调用失败:', error);
-      setErr(error?.message ?? '请求失败');
+      const { stream } = await mockSseStreamApiV1AiChatMockGet({
+        signal: controller.signal,
+        sseMaxRetryAttempts: 1,
+      });
+
+      for await (const chunk of stream) {
+        if (!isMockStreamMessage(chunk)) {
+          continue;
+        }
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `assistant-${chunk.index}`,
+            role: 'assistant',
+            content: chunk.message,
+          },
+        ]);
+      }
+    } catch (error) {
+      if (controller.signal.aborted) {
+        return;
+      }
+
+      console.error('AI Chat 流式请求失败:', error);
+      setErr(error instanceof Error ? error.message : '请求失败');
     } finally {
+      if (abortControllerRef.current === controller) {
+        abortControllerRef.current = null;
+      }
       setLoading(false);
     }
   };
 
   return (
-    <div>
-      <Button
-        colorScheme="gray"
-        bg="gray.500"
-        onClick={handleClick}
-        loading={loading}
-        disabled={loading}
+    <div
+      style={{
+        minHeight: '100vh',
+        padding: '32px 16px',
+        background: '#171923',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: '960px',
+          margin: '0 auto',
+          background: '#1f2937',
+          borderRadius: '16px',
+          padding: '24px',
+          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.25)',
+        }}
       >
-        点击我
-      </Button>
+        <Text fontSize="3xl" fontWeight="bold">
+          AI Chat
+        </Text>
+        <Text color="gray.300" mt={2}>
+          输入一条消息，体验 mock SSE 流式回复。
+        </Text>
 
-      {err && <Text color="red.500" mt={3}>错误：{err}</Text>}
-      {response && <Text mt={3}>响应数据: {response.message}</Text>}
-      <h1>你好世界</h1>
-      <p>欢迎来到 Hello 页面！</p>
+        <div
+          style={{
+            display: 'flex',
+            gap: '12px',
+            marginTop: '20px',
+          }}
+        >
+          <Input
+            value={prompt}
+            onChange={(event) => setPrompt(event.target.value)}
+            placeholder="输入你的问题..."
+            disabled={loading}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                void handleSend();
+              }
+            }}
+          />
+          <Button colorScheme="blue" onClick={() => void handleSend()} loading={loading}>
+            发送
+          </Button>
+          <Button variant="outline" onClick={stopStream} disabled={!loading}>
+            停止
+          </Button>
+        </div>
+
+        {err && (
+          <Text color="red.300" mt={4}>
+            错误：{err}
+          </Text>
+        )}
+
+        <div
+          style={{
+            marginTop: '24px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+            minHeight: '420px',
+          }}
+        >
+          {messages.length === 0 ? (
+            <div
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: '1px dashed rgba(255, 255, 255, 0.2)',
+                borderRadius: '12px',
+                color: '#cbd5e1',
+              }}
+            >
+              暂无消息，先发一条试试。
+            </div>
+          ) : (
+            messages.map((message) => (
+              <div
+                key={message.id}
+                style={{
+                  alignSelf: message.role === 'user' ? 'flex-end' : 'flex-start',
+                  maxWidth: '80%',
+                  padding: '12px 16px',
+                  borderRadius: '12px',
+                  background:
+                    message.role === 'user' ? '#3182ce' : 'rgba(255, 255, 255, 0.08)',
+                  color: '#fff',
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: '12px',
+                    opacity: 0.75,
+                    marginBottom: '4px',
+                  }}
+                >
+                  {message.role === 'user' ? '你' : 'AI'}
+                </div>
+                <div>{message.content}</div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 }

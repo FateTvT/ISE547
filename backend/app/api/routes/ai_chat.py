@@ -1,31 +1,12 @@
-import asyncio
-import json
-
 from fastapi import APIRouter
-from fastapi.responses import StreamingResponse
+from fastapi.sse import EventSourceResponse
 
-from app.schemas import AIChatRequest
+from app.service.chat_service import stream_mock_chat
 
 router = APIRouter()
 
 
-@router.post("/")
-async def ai_chat(payload: AIChatRequest) -> StreamingResponse:
-    async def event_stream():
-        chunks = [
-            "This ",
-            "is ",
-            "a ",
-            "mock ",
-            "AI ",
-            "chat ",
-            "response.",
-        ]
-
-        for index, chunk in enumerate(chunks):
-            yield f"data: {json.dumps({'index': index, 'content': chunk, 'done': False, 'message': payload.message})}\n\n"
-            await asyncio.sleep(0.1)
-
-        yield f"data: {json.dumps({'index': len(chunks), 'content': '', 'done': True, 'message': payload.message})}\n\n"
-
-    return StreamingResponse(event_stream(), media_type="text/event-stream")
+@router.get("/mock", response_class=EventSourceResponse)
+async def mock_sse_stream():
+    async for event in stream_mock_chat():
+        yield event

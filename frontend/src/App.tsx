@@ -1,9 +1,9 @@
-import HelloPage from './pages/HelloPage'
+import AIChatPage from './pages/HelloPage'
 
 export default function App() {
   return (
     <div>
-      <HelloPage />
+      <AIChatPage />
     </div>
   )
 }
