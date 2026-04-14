@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     BACKEND_PORT: int = 8000
     BACKEND_HOST: str = "0.0.0.0"
     API_V1_STR: str = "/api/v1"
+    DATABASE_URL: str = "sqlite:///./app.db"
     OPENROUTER_API_KEY: str = ""
     OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
     DEFAULT_CHAT_MODEL: str = "qwen/qwen3-30b-a3b-instruct-2507"
