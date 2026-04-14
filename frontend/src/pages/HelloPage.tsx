@@ -10,8 +10,8 @@ import {
 } from '../service/auth.api';
 
 export default function AIChatPage() {
-  const [username, setUsername] = useState('ISE547');
-  const [password, setPassword] = useState('zkj666');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
@@ -39,11 +39,11 @@ export default function AIChatPage() {
       });
       const user = await fetchCurrentUser();
       if (!user) {
-        throw new Error('登录成功，但获取用户信息失败。');
+        throw new Error('Login succeeded, but failed to load current user.');
       }
       setCurrentUser(user);
     } catch (error) {
-      setAuthError(error instanceof Error ? error.message : '登录失败');
+      setAuthError(error instanceof Error ? error.message : 'Login failed');
       clearAccessToken();
       setCurrentUser(null);
     } finally {
@@ -58,7 +58,7 @@ export default function AIChatPage() {
 
   const handleSend = async () => {
     if (!currentUser) {
-      setAuthError('请先登录后再发送消息。');
+      setAuthError('Please login before sending messages.');
       return;
     }
     await sendMessage(prompt);
@@ -82,16 +82,16 @@ export default function AIChatPage() {
           boxShadow: '0 10px 30px rgba(0, 0, 0, 0.25)',
         }}
       >
-        <Text fontSize="3xl" fontWeight="bold">
+        <Text fontSize="3xl" fontWeight="bold" color="white">
           AI Chat
         </Text>
         <Text color="gray.300" mt={2}>
-          输入一条消息，体验真实 SSE 流式回复。
+          Send a message and get real-time SSE responses.
         </Text>
         <Text color="gray.300" mt={2}>
           {currentUser
-            ? `已登录：${currentUser.username} (${currentUser.email})`
-            : '未登录，请先登录获取 JWT。'}
+            ? `Signed in as ${currentUser.username} (${currentUser.email})`
+            : 'Not signed in. Please login to get a JWT token.'}
         </Text>
 
         <div
@@ -104,32 +104,48 @@ export default function AIChatPage() {
           <Input
             value={username}
             onChange={(event) => setUsername(event.target.value)}
-            placeholder="用户名"
+            placeholder="Username"
+            color="white"
+            bg="rgba(255, 255, 255, 0.04)"
+            borderColor="rgba(255, 255, 255, 0.24)"
+            _placeholder={{ color: 'gray.400' }}
             disabled={authLoading || Boolean(currentUser)}
           />
           <Input
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            placeholder="密码"
+            placeholder="Password"
+            color="white"
+            bg="rgba(255, 255, 255, 0.04)"
+            borderColor="rgba(255, 255, 255, 0.24)"
+            _placeholder={{ color: 'gray.400' }}
             disabled={authLoading || Boolean(currentUser)}
           />
           <Button
-            colorScheme="teal"
+            bg="#14b8a6"
+            color="white"
+            _hover={{ bg: '#0f9f90' }}
             onClick={() => void handleLogin()}
             loading={authLoading}
             disabled={Boolean(currentUser)}
           >
             Login
           </Button>
-          <Button variant="outline" onClick={handleLogout} disabled={!currentUser}>
+          <Button
+            variant="outline"
+            color="white"
+            borderColor="rgba(255, 255, 255, 0.32)"
+            onClick={handleLogout}
+            disabled={!currentUser}
+          >
             Logout
           </Button>
         </div>
 
         {authError && (
           <Text color="red.300" mt={3}>
-            登录错误：{authError}
+            Auth error: {authError}
           </Text>
         )}
 
@@ -143,7 +159,11 @@ export default function AIChatPage() {
           <Input
             value={prompt}
             onChange={(event) => setPrompt(event.target.value)}
-            placeholder="输入你的问题..."
+            placeholder="Ask something..."
+            color="white"
+            bg="rgba(255, 255, 255, 0.04)"
+            borderColor="rgba(255, 255, 255, 0.24)"
+            _placeholder={{ color: 'gray.400' }}
             disabled={loading || !currentUser}
             onKeyDown={(event) => {
               if (event.key === 'Enter') {
@@ -152,21 +172,29 @@ export default function AIChatPage() {
             }}
           />
           <Button
-            colorScheme="blue"
+            bg="#3182ce"
+            color="white"
+            _hover={{ bg: '#2b6cb0' }}
             onClick={() => void handleSend()}
             loading={loading}
             disabled={!currentUser}
           >
-            发送
+            Send
           </Button>
-          <Button variant="outline" onClick={stopStream} disabled={!loading}>
-            停止
+          <Button
+            variant="outline"
+            color="white"
+            borderColor="rgba(255, 255, 255, 0.32)"
+            onClick={stopStream}
+            disabled={!loading}
+          >
+            Stop
           </Button>
         </div>
 
         {err && (
           <Text color="red.300" mt={4}>
-            错误：{err}
+            Error: {err}
           </Text>
         )}
 

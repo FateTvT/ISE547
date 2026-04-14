@@ -88,8 +88,8 @@ export function useAiChat(): UseAiChatResult {
           return;
         }
 
-        console.error('AI Chat 流式请求失败:', error);
-        setErr(error instanceof Error ? error.message : '请求失败');
+        console.error('AI Chat streaming request failed:', error);
+        setErr(error instanceof Error ? error.message : 'Request failed');
       } finally {
         if (abortControllerRef.current === controller) {
           abortControllerRef.current = null;

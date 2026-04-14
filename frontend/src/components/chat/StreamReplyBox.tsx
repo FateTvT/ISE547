@@ -14,7 +14,7 @@ export function StreamReplyBox({ messages, loading }: StreamReplyBoxProps) {
   const mergedAssistantReply = assistantMessages
     .map((message) => message.content)
     .join('');
-  const assistantReply = mergedAssistantReply || (loading ? '思考中...' : '');
+  const assistantReply = mergedAssistantReply || (loading ? 'Thinking...' : '');
 
   if (messages.length === 0) {
     return (
@@ -29,7 +29,7 @@ export function StreamReplyBox({ messages, loading }: StreamReplyBoxProps) {
           color: '#cbd5e1',
         }}
       >
-        暂无消息，先发一条试试。
+        No messages yet. Send one to start.
       </div>
     );
   }
@@ -55,7 +55,7 @@ export function StreamReplyBox({ messages, loading }: StreamReplyBoxProps) {
               marginBottom: '4px',
             }}
           >
-            你
+            You
           </div>
           <div>{message.content}</div>
         </div>
