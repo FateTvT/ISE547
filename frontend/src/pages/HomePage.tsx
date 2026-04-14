@@ -143,16 +143,10 @@ export default function HomePage() {
           />
           <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
             <Text fontSize="3xl" fontWeight="bold" color="white">
-              AI Chat
-            </Text>
-            <Text color="gray.300" mt={2}>
-              Send a message and get real-time SSE responses.
-            </Text>
-            <Text color="gray.400" mt={2} fontSize="sm">
-              Current thread: {selectedSessionId ?? 'No thread selected'}
+              ISE 547 Project
             </Text>
             <Text color="gray.500" mt={1} fontSize="xs">
-              Select a thread on the left to load its history.
+              Select a session on the left to load its history.
             </Text>
 
             {err && (

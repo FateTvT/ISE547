@@ -49,7 +49,7 @@ export function SessionSidebar({
           }}
         >
           <Text color="white" fontWeight="bold">
-            Threads
+            History
           </Text>
           <Button
             size="xs"
