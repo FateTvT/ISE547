@@ -6,8 +6,24 @@ class HelloResponse(BaseModel):
 
 
 class AIChatRequest(BaseModel):
-    message: str = ""
-    session_id: str = "default-session"
+    message: str | None = None
+    session_id: str | None = None
+
+
+class SessionResponse(BaseModel):
+    id: str
+    name: str
+
+
+class SessionMessageResponse(BaseModel):
+    role: str
+    content: str
+
+
+class SessionDetailResponse(BaseModel):
+    id: str
+    name: str
+    messages: list[SessionMessageResponse]
 
 
 class LoginRequest(BaseModel):

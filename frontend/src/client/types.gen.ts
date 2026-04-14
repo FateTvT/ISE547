@@ -7,11 +7,11 @@ export type AiChatRequest = {
     /**
      * Message
      */
-    message?: string;
+    message?: string | null;
     /**
      * Session Id
      */
-    session_id?: string;
+    session_id?: string | null;
 };
 
 /**
@@ -46,6 +46,52 @@ export type LoginRequest = {
      * Password
      */
     password: string;
+};
+
+/**
+ * SessionDetailResponse
+ */
+export type SessionDetailResponse = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Messages
+     */
+    messages: Array<SessionMessageResponse>;
+};
+
+/**
+ * SessionMessageResponse
+ */
+export type SessionMessageResponse = {
+    /**
+     * Role
+     */
+    role: string;
+    /**
+     * Content
+     */
+    content: string;
+};
+
+/**
+ * SessionResponse
+ */
+export type SessionResponse = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Name
+     */
+    name: string;
 };
 
 /**
@@ -160,6 +206,53 @@ export type StreamChatApiV1AiChatStreamPostResponses = {
      */
     200: unknown;
 };
+
+export type ListSessionsApiV1AiChatSessionsGetData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/ai-chat/sessions';
+};
+
+export type ListSessionsApiV1AiChatSessionsGetResponses = {
+    /**
+     * Response List Sessions Api V1 Ai Chat Sessions Get
+     * Successful Response
+     */
+    200: Array<SessionResponse>;
+};
+
+export type ListSessionsApiV1AiChatSessionsGetResponse = ListSessionsApiV1AiChatSessionsGetResponses[keyof ListSessionsApiV1AiChatSessionsGetResponses];
+
+export type GetSessionApiV1AiChatSessionsSessionIdGetData = {
+    body?: never;
+    path: {
+        /**
+         * Session Id
+         */
+        session_id: string;
+    };
+    query?: never;
+    url: '/api/v1/ai-chat/sessions/{session_id}';
+};
+
+export type GetSessionApiV1AiChatSessionsSessionIdGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetSessionApiV1AiChatSessionsSessionIdGetError = GetSessionApiV1AiChatSessionsSessionIdGetErrors[keyof GetSessionApiV1AiChatSessionsSessionIdGetErrors];
+
+export type GetSessionApiV1AiChatSessionsSessionIdGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: SessionDetailResponse;
+};
+
+export type GetSessionApiV1AiChatSessionsSessionIdGetResponse = GetSessionApiV1AiChatSessionsSessionIdGetResponses[keyof GetSessionApiV1AiChatSessionsSessionIdGetResponses];
 
 export type LoginApiV1AuthLoginPostData = {
     body: LoginRequest;

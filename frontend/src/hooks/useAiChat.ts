@@ -19,6 +19,8 @@ type UseAiChatResult = {
   messages: ChatMessage[];
   sendMessage: (prompt: string) => Promise<void>;
   stopStream: () => void;
+  setSessionId: (sessionId: string) => void;
+  replaceMessages: (nextMessages: ChatMessage[]) => void;
 };
 
 export function useAiChat(): UseAiChatResult {
@@ -40,6 +42,15 @@ export function useAiChat(): UseAiChatResult {
     setLoading(false);
   }, []);
 
+  const setSessionId = useCallback((sessionId: string) => {
+    sessionIdRef.current = sessionId;
+  }, []);
+
+  const replaceMessages = useCallback((nextMessages: ChatMessage[]) => {
+    setMessages(nextMessages);
+    setErr(null);
+  }, []);
+
   const sendMessage = useCallback(
     async (prompt: string) => {
       const trimmedPrompt = prompt.trim();
@@ -53,9 +64,12 @@ export function useAiChat(): UseAiChatResult {
 
       setErr(null);
       setLoading(true);
-      setMessages([
+      const userMessageId = `user-${Date.now()}`;
+      const assistantMessageId = `assistant-${Date.now()}`;
+      setMessages((prev) => [
+        ...prev,
         {
-          id: `user-${Date.now()}`,
+          id: userMessageId,
           role: 'user',
           content: trimmedPrompt,
         },
@@ -74,14 +88,26 @@ export function useAiChat(): UseAiChatResult {
             continue;
           }
 
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: `assistant-${parsed.index}`,
-              role: 'assistant',
-              content: parsed.message,
-            },
-          ]);
+          setMessages((prev) => {
+            const existingMessageIndex = prev.findIndex(
+              (message) => message.id === assistantMessageId,
+            );
+            if (existingMessageIndex < 0) {
+              return [
+                ...prev,
+                {
+                  id: assistantMessageId,
+                  role: 'assistant',
+                  content: parsed.message,
+                },
+              ];
+            }
+            return prev.map((message) =>
+              message.id === assistantMessageId
+                ? { ...message, content: `${message.content}${parsed.message}` }
+                : message,
+            );
+          });
         }
       } catch (error) {
         if (controller.signal.aborted) {
@@ -106,5 +132,7 @@ export function useAiChat(): UseAiChatResult {
     messages,
     sendMessage,
     stopStream,
+    setSessionId,
+    replaceMessages,
   };
 }

@@ -2,6 +2,8 @@ import asyncio
 import json
 from collections.abc import AsyncIterator
 
+from langchain_core.messages import BaseMessage
+
 from app.core.langgraph.graph import langgraph_agent
 
 MOCK_RESPONSE_CHUNKS = [
@@ -69,3 +71,31 @@ async def stream_langgraph_chat(
             "id": str(index),
             "data": json.dumps(payload, ensure_ascii=False),
         }
+
+
+def _resolve_message_role(message: BaseMessage) -> str:
+    """Map LangChain message type to API response role."""
+
+    if message.type == "human":
+        return "user"
+    if message.type == "ai":
+        return "assistant"
+    return message.type
+
+
+async def get_langgraph_session_history(session_id: str) -> list[dict[str, str]]:
+    """Get history for one session/thread from LangGraph checkpoint."""
+
+    messages = await langgraph_agent.get_history(session_id=session_id)
+    history: list[dict[str, str]] = []
+    for message in messages:
+        content = (
+            message.content
+            if isinstance(message.content, str)
+            else str(message.content)
+        )
+        role = _resolve_message_role(message)
+        if role == "system":
+            continue
+        history.append({"role": role, "content": content})
+    return history

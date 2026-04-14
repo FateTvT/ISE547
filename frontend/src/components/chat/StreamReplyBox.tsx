@@ -7,15 +7,6 @@ type StreamReplyBoxProps = {
 };
 
 export function StreamReplyBox({ messages, loading }: StreamReplyBoxProps) {
-  const userMessages = messages.filter((message) => message.role === 'user');
-  const assistantMessages = messages.filter(
-    (message) => message.role === 'assistant',
-  );
-  const mergedAssistantReply = assistantMessages
-    .map((message) => message.content)
-    .join('');
-  const assistantReply = mergedAssistantReply || (loading ? 'Thinking...' : '');
-
   if (messages.length === 0) {
     return (
       <div
@@ -36,16 +27,18 @@ export function StreamReplyBox({ messages, loading }: StreamReplyBoxProps) {
 
   return (
     <>
-      {userMessages.map((message) => (
+      {messages.map((message) => (
         <div
           key={message.id}
           style={{
-            alignSelf: 'flex-end',
+            alignSelf: message.role === 'user' ? 'flex-end' : 'flex-start',
             maxWidth: '80%',
             padding: '12px 16px',
             borderRadius: '12px',
-            background: '#3182ce',
+            background:
+              message.role === 'user' ? '#3182ce' : 'rgba(255, 255, 255, 0.08)',
             color: '#fff',
+            minHeight: '48px',
           }}
         >
           <div
@@ -55,90 +48,96 @@ export function StreamReplyBox({ messages, loading }: StreamReplyBoxProps) {
               marginBottom: '4px',
             }}
           >
-            You
+            {message.role === 'user' ? 'You' : 'AI'}
           </div>
-          <div>{message.content}</div>
+          {message.role === 'assistant' ? (
+            <ReactMarkdown
+              components={{
+                p: ({ children }) => (
+                  <p style={{ margin: '0 0 6px', lineHeight: 1.4 }}>{children}</p>
+                ),
+                h1: ({ children }) => (
+                  <h1 style={{ margin: '8px 0 6px', lineHeight: 1.3 }}>{children}</h1>
+                ),
+                h2: ({ children }) => (
+                  <h2 style={{ margin: '8px 0 6px', lineHeight: 1.3 }}>{children}</h2>
+                ),
+                h3: ({ children }) => (
+                  <h3 style={{ margin: '8px 0 6px', lineHeight: 1.3 }}>{children}</h3>
+                ),
+                ul: ({ children }) => <ul style={{ margin: '4px 0', paddingLeft: '18px' }}>{children}</ul>,
+                ol: ({ children }) => <ol style={{ margin: '4px 0', paddingLeft: '18px' }}>{children}</ol>,
+                li: ({ children }) => <li style={{ margin: '2px 0', lineHeight: 1.4 }}>{children}</li>,
+                blockquote: ({ children }) => (
+                  <blockquote
+                    style={{
+                      margin: '6px 0',
+                      paddingLeft: '10px',
+                      borderLeft: '3px solid rgba(255, 255, 255, 0.3)',
+                    }}
+                  >
+                    {children}
+                  </blockquote>
+                ),
+                hr: () => (
+                  <hr
+                    style={{
+                      border: 'none',
+                      borderTop: '1px solid rgba(255, 255, 255, 0.2)',
+                      margin: '8px 0',
+                    }}
+                  />
+                ),
+                code: ({ children }) => (
+                  <code style={{ fontFamily: 'ui-monospace, monospace' }}>{children}</code>
+                ),
+                pre: ({ children }) => (
+                  <pre
+                    style={{
+                      margin: '6px 0',
+                      padding: '8px',
+                      borderRadius: '8px',
+                      background: 'rgba(0, 0, 0, 0.2)',
+                      overflowX: 'auto',
+                    }}
+                  >
+                    {children}
+                  </pre>
+                ),
+              }}
+            >
+              {message.content}
+            </ReactMarkdown>
+          ) : (
+            <div>{message.content}</div>
+          )}
         </div>
       ))}
 
-      <div
-        style={{
-          alignSelf: 'flex-start',
-          maxWidth: '80%',
-          padding: '12px 16px',
-          borderRadius: '12px',
-          background: 'rgba(255, 255, 255, 0.08)',
-          color: '#fff',
-          minHeight: '48px',
-        }}
-      >
+      {loading && (
         <div
           style={{
-            fontSize: '12px',
-            opacity: 0.75,
-            marginBottom: '4px',
+            alignSelf: 'flex-start',
+            maxWidth: '80%',
+            padding: '12px 16px',
+            borderRadius: '12px',
+            background: 'rgba(255, 255, 255, 0.08)',
+            color: '#fff',
+            minHeight: '48px',
           }}
         >
-          AI
+          <div
+            style={{
+              fontSize: '12px',
+              opacity: 0.75,
+              marginBottom: '4px',
+            }}
+          >
+            AI
+          </div>
+          <div>Thinking...</div>
         </div>
-        <ReactMarkdown
-          components={{
-            p: ({ children }) => (
-              <p style={{ margin: '0 0 6px', lineHeight: 1.4 }}>{children}</p>
-            ),
-            h1: ({ children }) => (
-              <h1 style={{ margin: '8px 0 6px', lineHeight: 1.3 }}>{children}</h1>
-            ),
-            h2: ({ children }) => (
-              <h2 style={{ margin: '8px 0 6px', lineHeight: 1.3 }}>{children}</h2>
-            ),
-            h3: ({ children }) => (
-              <h3 style={{ margin: '8px 0 6px', lineHeight: 1.3 }}>{children}</h3>
-            ),
-            ul: ({ children }) => <ul style={{ margin: '4px 0', paddingLeft: '18px' }}>{children}</ul>,
-            ol: ({ children }) => <ol style={{ margin: '4px 0', paddingLeft: '18px' }}>{children}</ol>,
-            li: ({ children }) => <li style={{ margin: '2px 0', lineHeight: 1.4 }}>{children}</li>,
-            blockquote: ({ children }) => (
-              <blockquote
-                style={{
-                  margin: '6px 0',
-                  paddingLeft: '10px',
-                  borderLeft: '3px solid rgba(255, 255, 255, 0.3)',
-                }}
-              >
-                {children}
-              </blockquote>
-            ),
-            hr: () => (
-              <hr
-                style={{
-                  border: 'none',
-                  borderTop: '1px solid rgba(255, 255, 255, 0.2)',
-                  margin: '8px 0',
-                }}
-              />
-            ),
-            code: ({ children }) => (
-              <code style={{ fontFamily: 'ui-monospace, monospace' }}>{children}</code>
-            ),
-            pre: ({ children }) => (
-              <pre
-                style={{
-                  margin: '6px 0',
-                  padding: '8px',
-                  borderRadius: '8px',
-                  background: 'rgba(0, 0, 0, 0.2)',
-                  overflowX: 'auto',
-                }}
-              >
-                {children}
-              </pre>
-            ),
-          }}
-        >
-          {assistantReply}
-        </ReactMarkdown>
-      </div>
+      )}
     </>
   );
 }

@@ -1,4 +1,9 @@
-import { streamChatApiV1AiChatStreamPost } from '../client/sdk.gen';
+import {
+  getSessionApiV1AiChatSessionsSessionIdGet,
+  listSessionsApiV1AiChatSessionsGet,
+  streamChatApiV1AiChatStreamPost,
+} from '../client/sdk.gen';
+import type { SessionDetailResponse, SessionResponse } from '../client/types.gen';
 
 export type MockStreamMessage = {
   index: number;
@@ -51,7 +56,7 @@ export function parseMockStreamChunk(chunk: unknown): MockStreamMessage | null {
 export async function createMockChatStream(
   signal: AbortSignal,
   message: string,
-  sessionId: string,
+  sessionId?: string,
 ): Promise<AsyncIterable<unknown>> {
   const { stream } = await streamChatApiV1AiChatStreamPost({
     body: {
@@ -62,4 +67,24 @@ export async function createMockChatStream(
     sseMaxRetryAttempts: 1,
   });
   return stream;
+}
+
+export async function fetchSessions(): Promise<SessionResponse[]> {
+  const result = await listSessionsApiV1AiChatSessionsGet();
+  if (result.error || !result.data) {
+    return [];
+  }
+  return result.data;
+}
+
+export async function fetchSessionDetail(
+  sessionId: string,
+): Promise<SessionDetailResponse | null> {
+  const result = await getSessionApiV1AiChatSessionsSessionIdGet({
+    path: { session_id: sessionId },
+  });
+  if (result.error || !result.data) {
+    return null;
+  }
+  return result.data;
 }

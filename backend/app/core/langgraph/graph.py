@@ -135,6 +135,18 @@ class SimpleLangGraphAgent:
             if isinstance(content, str) and content:
                 yield content
 
+    async def get_history(self, session_id: str) -> list[BaseMessage]:
+        """Get persisted message history by thread ID."""
+
+        graph = await self._get_graph()
+        config = {"configurable": {"thread_id": session_id}}
+        snapshot = await graph.aget_state(config=config)
+        values = getattr(snapshot, "values", {}) or {}
+        messages = values.get("messages", [])
+        if not isinstance(messages, list):
+            return []
+        return [message for message in messages if isinstance(message, BaseMessage)]
+
     async def close(self) -> None:
         """Close SQLite checkpointer resources if they exist."""
 
