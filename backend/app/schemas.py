@@ -7,3 +7,4 @@ class HelloResponse(BaseModel):
 
 class AIChatRequest(BaseModel):
     message: str = ""
+    session_id: str = "default-session"

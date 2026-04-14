@@ -1,4 +1,4 @@
-import { mockSseStreamApiV1AiChatMockGet } from '../client/sdk.gen';
+import { streamChatApiV1AiChatStreamPost } from '../client/sdk.gen';
 
 export type MockStreamMessage = {
   index: number;
@@ -50,8 +50,14 @@ export function parseMockStreamChunk(chunk: unknown): MockStreamMessage | null {
 
 export async function createMockChatStream(
   signal: AbortSignal,
+  message: string,
+  sessionId: string,
 ): Promise<AsyncIterable<unknown>> {
-  const { stream } = await mockSseStreamApiV1AiChatMockGet({
+  const { stream } = await streamChatApiV1AiChatStreamPost({
+    body: {
+      message,
+      session_id: sessionId,
+    },
     signal,
     sseMaxRetryAttempts: 1,
   });

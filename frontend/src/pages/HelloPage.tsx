@@ -33,7 +33,7 @@ export default function AIChatPage() {
           AI Chat
         </Text>
         <Text color="gray.300" mt={2}>
-          输入一条消息，体验 mock SSE 流式回复。
+          输入一条消息，体验真实 SSE 流式回复。
         </Text>
 
         <div

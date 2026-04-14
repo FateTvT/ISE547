@@ -26,6 +26,7 @@ export function useAiChat(): UseAiChatResult {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const sessionIdRef = useRef(`session-${Date.now()}`);
 
   useEffect(() => {
     return () => {
@@ -61,7 +62,11 @@ export function useAiChat(): UseAiChatResult {
       ]);
 
       try {
-        const stream = await createMockChatStream(controller.signal);
+        const stream = await createMockChatStream(
+          controller.signal,
+          trimmedPrompt,
+          sessionIdRef.current,
+        );
 
         for await (const chunk of stream) {
           const parsed = parseMockStreamChunk(chunk);

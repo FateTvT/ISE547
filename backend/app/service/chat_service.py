@@ -2,6 +2,8 @@ import asyncio
 import json
 from collections.abc import AsyncIterator
 
+from app.core.langgraph.graph import langgraph_agent
+
 MOCK_RESPONSE_CHUNKS = [
     "根据",
     "您提供的",
@@ -34,12 +36,34 @@ MOCK_RESPONSE_CHUNKS = [
 
 
 async def stream_mock_chat() -> AsyncIterator[dict[str, str]]:
+    """Stream mock chunks for frontend debugging."""
+
     for index, message in enumerate(MOCK_RESPONSE_CHUNKS, start=1):
         await asyncio.sleep(0.2)
         payload = {
             "index": index,
             "message": message,
         }
+        yield {
+            "event": "message",
+            "id": str(index),
+            "data": json.dumps(payload, ensure_ascii=False),
+        }
+
+
+async def stream_langgraph_chat(
+    message: str, session_id: str
+) -> AsyncIterator[dict[str, str]]:
+    """Stream LangGraph/OpenRouter response as SSE payloads."""
+
+    index = 0
+    async for token in langgraph_agent.stream_response(
+        user_message=message, session_id=session_id
+    ):
+        if not token:
+            continue
+        index += 1
+        payload = {"index": index, "message": token}
         yield {
             "event": "message",
             "id": str(index),
