@@ -44,12 +44,32 @@ class SimpleLangGraphAgent:
         response = await self._llm.ainvoke(state["messages"])
         return {"messages": [response]}
 
+    def _resolve_sqlite_conn_string(self) -> str:
+        """Resolve SQLite checkpointer path from shared DATABASE_URL."""
+
+        database_url = settings.DATABASE_URL.strip()
+        if database_url in {"sqlite://", "sqlite:///:memory:"}:
+            return ":memory:"
+
+        if database_url.startswith("sqlite+aiosqlite:///"):
+            sqlite_path = database_url.removeprefix("sqlite+aiosqlite:///")
+        elif database_url.startswith("sqlite:///"):
+            sqlite_path = database_url.removeprefix("sqlite:///")
+        else:
+            raise ValueError(
+                "DATABASE_URL must be a sqlite URL when using AsyncSqliteSaver, "
+                f"got: {database_url}"
+            )
+
+        sqlite_path = sqlite_path.split("?", maxsplit=1)[0]
+        return sqlite_path if sqlite_path else ":memory:"
+
     async def _get_sqlite_checkpointer(self) -> AsyncSqliteSaver:
         """Get a reusable SQLite checkpointer for async graph execution."""
 
         if self._checkpointer is None:
             context_manager = AsyncSqliteSaver.from_conn_string(
-                settings.LANGGRAPH_SQLITE_DB_PATH
+                self._resolve_sqlite_conn_string()
             )
             checkpointer = await context_manager.__aenter__()
             await checkpointer.setup()
