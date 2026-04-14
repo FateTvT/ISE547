@@ -21,6 +21,13 @@ app.add_middleware(
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 
+@app.get("/health", tags=["health"])
+async def health() -> dict[str, str]:
+    """Return service health status."""
+
+    return {"status": "ok"}
+
+
 @app.on_event("startup")
 async def startup() -> None:
     """Initialize database tables and default user."""
