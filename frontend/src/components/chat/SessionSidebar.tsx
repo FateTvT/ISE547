@@ -30,14 +30,16 @@ export function SessionSidebar({
     <div
       style={{
         width: '280px',
-        minHeight: '680px',
+        height: '100%',
+        minHeight: 0,
         borderRight: '1px solid rgba(255, 255, 255, 0.12)',
         paddingRight: '16px',
         display: 'flex',
         flexDirection: 'column',
+        overflow: 'hidden',
       }}
     >
-      <div style={{ flex: 1, minHeight: 0 }}>
+      <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
         <div
           style={{
             display: 'flex',
@@ -62,12 +64,15 @@ export function SessionSidebar({
           </Button>
         </div>
         <div
+          className="custom-scrollbar"
           style={{
             display: 'flex',
             flexDirection: 'column',
             gap: '8px',
-            maxHeight: '540px',
+            flex: 1,
+            minHeight: 0,
             overflowY: 'auto',
+            paddingRight: '4px',
           }}
         >
           {sessions.length === 0 ? (

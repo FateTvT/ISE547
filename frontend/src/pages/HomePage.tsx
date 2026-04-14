@@ -91,7 +91,7 @@ export default function HomePage() {
     return (
       <div
         style={{
-          minHeight: '100vh',
+          height: '100dvh',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -106,9 +106,10 @@ export default function HomePage() {
   return (
     <div
       style={{
-        minHeight: '100vh',
+        height: '100dvh',
         padding: '32px 16px',
         background: '#171923',
+        overflow: 'hidden',
       }}
     >
       <div
@@ -119,12 +120,16 @@ export default function HomePage() {
           borderRadius: '16px',
           padding: '24px',
           boxShadow: '0 10px 30px rgba(0, 0, 0, 0.25)',
+          height: 'calc(100dvh - 64px)',
+          overflow: 'hidden',
         }}
       >
         <div
           style={{
             display: 'flex',
             gap: '20px',
+            height: '100%',
+            minHeight: 0,
           }}
         >
           <SessionSidebar
@@ -136,7 +141,7 @@ export default function HomePage() {
             onRefresh={() => void loadSessions()}
             onLogout={handleLogout}
           />
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
             <Text fontSize="3xl" fontWeight="bold" color="white">
               AI Chat
             </Text>
@@ -150,11 +155,46 @@ export default function HomePage() {
               Select a thread on the left to load its history.
             </Text>
 
+            {err && (
+              <Text color="red.300" mt={4}>
+                Error: {err}
+              </Text>
+            )}
+            {sessionDetailError && (
+              <Text color="red.300" mt={2}>
+                {sessionDetailError}
+              </Text>
+            )}
+            {sessionDetailLoading && (
+              <Text color="gray.300" mt={2}>
+                Loading thread history...
+              </Text>
+            )}
+
+            <div
+              className="custom-scrollbar"
+              style={{
+                marginTop: '24px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+                flex: 1,
+                minHeight: 0,
+                overflowY: 'auto',
+                paddingRight: '6px',
+              }}
+            >
+              <StreamReplyBox messages={messages} loading={loading} />
+            </div>
+
             <div
               style={{
                 display: 'flex',
                 gap: '12px',
-                marginTop: '18px',
+                marginTop: '12px',
+                paddingTop: '12px',
+                borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                flexShrink: 0,
               }}
             >
               <Input
@@ -192,34 +232,6 @@ export default function HomePage() {
               >
                 Stop
               </Button>
-            </div>
-
-            {err && (
-              <Text color="red.300" mt={4}>
-                Error: {err}
-              </Text>
-            )}
-            {sessionDetailError && (
-              <Text color="red.300" mt={2}>
-                {sessionDetailError}
-              </Text>
-            )}
-            {sessionDetailLoading && (
-              <Text color="gray.300" mt={2}>
-                Loading thread history...
-              </Text>
-            )}
-
-            <div
-              style={{
-                marginTop: '24px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-                minHeight: '420px',
-              }}
-            >
-              <StreamReplyBox messages={messages} loading={loading} />
             </div>
           </div>
         </div>

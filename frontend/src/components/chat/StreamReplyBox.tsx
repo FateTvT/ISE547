@@ -1,5 +1,5 @@
-import ReactMarkdown from 'react-markdown';
 import type { ChatMessage } from '../../hooks/useAiChat';
+import { ChatBubble } from './ChatBubble';
 
 type StreamReplyBoxProps = {
   messages: ChatMessage[];
@@ -28,115 +28,11 @@ export function StreamReplyBox({ messages, loading }: StreamReplyBoxProps) {
   return (
     <>
       {messages.map((message) => (
-        <div
-          key={message.id}
-          style={{
-            alignSelf: message.role === 'user' ? 'flex-end' : 'flex-start',
-            maxWidth: '80%',
-            padding: '12px 16px',
-            borderRadius: '12px',
-            background:
-              message.role === 'user' ? '#3182ce' : 'rgba(255, 255, 255, 0.08)',
-            color: '#fff',
-            minHeight: '48px',
-          }}
-        >
-          <div
-            style={{
-              fontSize: '12px',
-              opacity: 0.75,
-              marginBottom: '4px',
-            }}
-          >
-            {message.role === 'user' ? 'You' : 'AI'}
-          </div>
-          {message.role === 'assistant' ? (
-            <ReactMarkdown
-              components={{
-                p: ({ children }) => (
-                  <p style={{ margin: '0 0 6px', lineHeight: 1.4 }}>{children}</p>
-                ),
-                h1: ({ children }) => (
-                  <h1 style={{ margin: '8px 0 6px', lineHeight: 1.3 }}>{children}</h1>
-                ),
-                h2: ({ children }) => (
-                  <h2 style={{ margin: '8px 0 6px', lineHeight: 1.3 }}>{children}</h2>
-                ),
-                h3: ({ children }) => (
-                  <h3 style={{ margin: '8px 0 6px', lineHeight: 1.3 }}>{children}</h3>
-                ),
-                ul: ({ children }) => <ul style={{ margin: '4px 0', paddingLeft: '18px' }}>{children}</ul>,
-                ol: ({ children }) => <ol style={{ margin: '4px 0', paddingLeft: '18px' }}>{children}</ol>,
-                li: ({ children }) => <li style={{ margin: '2px 0', lineHeight: 1.4 }}>{children}</li>,
-                blockquote: ({ children }) => (
-                  <blockquote
-                    style={{
-                      margin: '6px 0',
-                      paddingLeft: '10px',
-                      borderLeft: '3px solid rgba(255, 255, 255, 0.3)',
-                    }}
-                  >
-                    {children}
-                  </blockquote>
-                ),
-                hr: () => (
-                  <hr
-                    style={{
-                      border: 'none',
-                      borderTop: '1px solid rgba(255, 255, 255, 0.2)',
-                      margin: '8px 0',
-                    }}
-                  />
-                ),
-                code: ({ children }) => (
-                  <code style={{ fontFamily: 'ui-monospace, monospace' }}>{children}</code>
-                ),
-                pre: ({ children }) => (
-                  <pre
-                    style={{
-                      margin: '6px 0',
-                      padding: '8px',
-                      borderRadius: '8px',
-                      background: 'rgba(0, 0, 0, 0.2)',
-                      overflowX: 'auto',
-                    }}
-                  >
-                    {children}
-                  </pre>
-                ),
-              }}
-            >
-              {message.content}
-            </ReactMarkdown>
-          ) : (
-            <div>{message.content}</div>
-          )}
-        </div>
+        <ChatBubble key={message.id} role={message.role} content={message.content} />
       ))}
 
       {loading && (
-        <div
-          style={{
-            alignSelf: 'flex-start',
-            maxWidth: '80%',
-            padding: '12px 16px',
-            borderRadius: '12px',
-            background: 'rgba(255, 255, 255, 0.08)',
-            color: '#fff',
-            minHeight: '48px',
-          }}
-        >
-          <div
-            style={{
-              fontSize: '12px',
-              opacity: 0.75,
-              marginBottom: '4px',
-            }}
-          >
-            AI
-          </div>
-          <div>Thinking...</div>
-        </div>
+        <ChatBubble role="assistant" content="Thinking..." />
       )}
     </>
   );
