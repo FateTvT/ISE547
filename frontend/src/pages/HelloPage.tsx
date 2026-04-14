@@ -1,104 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { Button, Input, Text } from '@chakra-ui/react';
-import { mockSseStreamApiV1AiChatMockGet } from '../client/sdk.gen';
-
-type ChatRole = 'user' | 'assistant';
-
-type ChatMessage = {
-  id: string;
-  role: ChatRole;
-  content: string;
-};
-
-type MockStreamMessage = {
-  index: number;
-  message: string;
-};
-
-function isMockStreamMessage(value: unknown): value is MockStreamMessage {
-  if (!value || typeof value !== 'object') {
-    return false;
-  }
-
-  const candidate = value as Record<string, unknown>;
-  return (
-    typeof candidate.index === 'number' &&
-    typeof candidate.message === 'string'
-  );
-}
+import { useAiChat } from '../hooks/useAiChat';
 
 export default function AIChatPage() {
   const [prompt, setPrompt] = useState('');
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
-
-  useEffect(() => {
-    return () => {
-      abortControllerRef.current?.abort();
-    };
-  }, []);
-
-  const stopStream = () => {
-    abortControllerRef.current?.abort();
-    abortControllerRef.current = null;
-    setLoading(false);
-  };
+  const { loading, err, messages, sendMessage, stopStream } = useAiChat();
 
   const handleSend = async () => {
-    const trimmedPrompt = prompt.trim();
-    if (!trimmedPrompt || loading) {
-      return;
-    }
-
-    const controller = new AbortController();
-    abortControllerRef.current?.abort();
-    abortControllerRef.current = controller;
-
-    setErr(null);
-    setLoading(true);
-    setMessages([
-      {
-        id: `user-${Date.now()}`,
-        role: 'user',
-        content: trimmedPrompt,
-      },
-    ]);
-
-    try {
-      const { stream } = await mockSseStreamApiV1AiChatMockGet({
-        signal: controller.signal,
-        sseMaxRetryAttempts: 1,
-      });
-
-      for await (const chunk of stream) {
-        if (!isMockStreamMessage(chunk)) {
-          continue;
-        }
-
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: `assistant-${chunk.index}`,
-            role: 'assistant',
-            content: chunk.message,
-          },
-        ]);
-      }
-    } catch (error) {
-      if (controller.signal.aborted) {
-        return;
-      }
-
-      console.error('AI Chat 流式请求失败:', error);
-      setErr(error instanceof Error ? error.message : '请求失败');
-    } finally {
-      if (abortControllerRef.current === controller) {
-        abortControllerRef.current = null;
-      }
-      setLoading(false);
-    }
+    await sendMessage(prompt);
   };
 
   return (
