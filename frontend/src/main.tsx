@@ -5,10 +5,12 @@ import './index.css'
 import App from './App.tsx'
 import { client } from './client/client.gen'
 import { createConfig } from './client/client'
+import { getAccessToken } from './service/auth.api'
 
 // 配置客户端基础URL
 client.setConfig(createConfig({
-  baseUrl: import.meta.env.VITE_API_URL
+  baseUrl: import.meta.env.VITE_API_URL,
+  auth: () => getAccessToken(),
 }))
 
 
