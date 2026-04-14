@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button, Input, Text } from '@chakra-ui/react';
 import { useAiChat } from '../hooks/useAiChat';
+import { StreamReplyBox } from '../components/chat/StreamReplyBox';
 
 export default function AIChatPage() {
   const [prompt, setPrompt] = useState('');
@@ -76,47 +77,7 @@ export default function AIChatPage() {
             minHeight: '420px',
           }}
         >
-          {messages.length === 0 ? (
-            <div
-              style={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '1px dashed rgba(255, 255, 255, 0.2)',
-                borderRadius: '12px',
-                color: '#cbd5e1',
-              }}
-            >
-              暂无消息，先发一条试试。
-            </div>
-          ) : (
-            messages.map((message) => (
-              <div
-                key={message.id}
-                style={{
-                  alignSelf: message.role === 'user' ? 'flex-end' : 'flex-start',
-                  maxWidth: '80%',
-                  padding: '12px 16px',
-                  borderRadius: '12px',
-                  background:
-                    message.role === 'user' ? '#3182ce' : 'rgba(255, 255, 255, 0.08)',
-                  color: '#fff',
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: '12px',
-                    opacity: 0.75,
-                    marginBottom: '4px',
-                  }}
-                >
-                  {message.role === 'user' ? '你' : 'AI'}
-                </div>
-                <div>{message.content}</div>
-              </div>
-            ))
-          )}
+          <StreamReplyBox messages={messages} loading={loading} />
         </div>
       </div>
     </div>
