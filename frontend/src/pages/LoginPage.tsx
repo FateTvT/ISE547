@@ -10,8 +10,8 @@ import {
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const [username, setUsername] = useState('ISE547')
-  const [password, setPassword] = useState('zkj666')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [authLoading, setAuthLoading] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null)
