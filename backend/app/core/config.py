@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     BACKEND_HOST: str = "0.0.0.0"
     API_V1_STR: str = "/api/v1"
     DATABASE_URL: str = "sqlite:///./app.db"
+    JWT_SECRET_KEY: str = ""
+    JWT_ALGORITHM: str = "HS256"
+    JWT_EXPIRE_MINUTES: int = 60 * 24
     OPENROUTER_API_KEY: str = ""
     OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
     DEFAULT_CHAT_MODEL: str = "qwen/qwen3-30b-a3b-instruct-2507"
