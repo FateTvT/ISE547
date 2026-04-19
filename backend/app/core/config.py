@@ -23,6 +23,11 @@ class Settings(BaseSettings):
     CHAT_TEMPERATURE: float = 0.2
     LANGGRAPH_SQLITE_DB_PATH: str = "langgraph.sqlite"
     SYSTEM_PROMPT: str = "You are a helpful assistant."
+    INFERMEDICA_BASE_URL: str = "https://api.infermedica.com/v3"
+    INFERMEDICA_APP_ID: str = ""
+    INFERMEDICA_APP_KEY: str = ""
+    INFERMEDICA_LANGUAGE: str = "en"
+    INFERMEDICA_TIMEOUT_SECONDS: float = 15.0
 
 
 settings = Settings()
