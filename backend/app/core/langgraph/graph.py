@@ -36,6 +36,7 @@ from app.service.diagnosis_kb_service import DiagnosisKnowledgeBaseService
 logger = logging.getLogger("uvicorn.error")
 FINAL_RESULT_CHOICE_ID = "__view_final_result__"
 EVIDENCE_CHOICE_PREFIX = "evidence"
+GROUP_SINGLE_CHOICE_PREFIX = "group_single"
 
 
 class GraphState(TypedDict, total=False):
@@ -52,6 +53,7 @@ class GraphState(TypedDict, total=False):
     question_card: dict[str, Any]
     has_kb_question: bool
     selected_kb_choice: str
+    user_choice_history: list[dict[str, str]]
     user_wants_final_result: bool
 
 
@@ -120,6 +122,12 @@ class SimpleLangGraphAgent:
         return f"{EVIDENCE_CHOICE_PREFIX}::{evidence_id}::{choice_id}"
 
     @staticmethod
+    def _build_group_single_choice_token(evidence_id: str) -> str:
+        """Build a token for group-single top-level selections."""
+
+        return f"{GROUP_SINGLE_CHOICE_PREFIX}::{evidence_id}"
+
+    @staticmethod
     def _parse_evidence_choice_token(choice_token: str) -> tuple[str, str] | None:
         """Parse evidence token and return evidence ID with choice ID."""
 
@@ -131,6 +139,18 @@ class SimpleLangGraphAgent:
         if not evidence_id or not choice_id:
             return None
         return evidence_id, choice_id
+
+    @staticmethod
+    def _parse_group_single_choice_token(choice_token: str) -> str | None:
+        """Parse group-single token and return selected evidence ID."""
+
+        parts = choice_token.split("::")
+        if len(parts) != 2 or parts[0] != GROUP_SINGLE_CHOICE_PREFIX:
+            return None
+        evidence_id = parts[1].strip()
+        if not evidence_id:
+            return None
+        return evidence_id
 
     @staticmethod
     def _extract_choice_id_from_interrupt_answer(answer: Any) -> str | None:
@@ -146,28 +166,110 @@ class SimpleLangGraphAgent:
         return None
 
     @staticmethod
+    def _append_user_choice_history(
+        *, state: GraphState, selected_choice: str
+    ) -> list[dict[str, str]]:
+        """Append one user choice to persistent choice history."""
+
+        history = state.get("user_choice_history", [])
+        if not isinstance(history, list):
+            history = []
+        entry = {"choice_id": selected_choice}
+        return [*history, entry]
+
+    @staticmethod
+    def _is_group_single_question(question: InfermedicaQuestion) -> bool:
+        """Check whether question should be rendered as top-level choices."""
+
+        return question.type == "group_single" and bool(question.items)
+
+    @staticmethod
+    def _resolve_item_choice_id(
+        choice_ids: list[str], preferred_choice_id: str, fallback_choice_id: str
+    ) -> str:
+        """Resolve choice ID with safe fallback."""
+
+        if preferred_choice_id in choice_ids:
+            return preferred_choice_id
+        if fallback_choice_id in choice_ids:
+            return fallback_choice_id
+        return choice_ids[0] if choice_ids else fallback_choice_id
+
+    @staticmethod
+    def _build_group_single_evidence_updates(
+        question: InfermedicaQuestion, selected_evidence_id: str
+    ) -> list[dict[str, str]]:
+        """Expand one top-level group-single selection into evidence updates."""
+
+        item_ids = {item.id for item in question.items}
+        if selected_evidence_id not in item_ids:
+            return []
+
+        updates: list[dict[str, str]] = []
+        for item in question.items:
+            available_choice_ids = [choice.id for choice in item.choices]
+            preferred = "present" if item.id == selected_evidence_id else "absent"
+            choice_id = SimpleLangGraphAgent._resolve_item_choice_id(
+                available_choice_ids,
+                preferred_choice_id=preferred,
+                fallback_choice_id="unknown",
+            )
+            updates.append({"id": item.id, "choice_id": choice_id})
+        return updates
+
+    @staticmethod
+    def _extract_question_from_payload(
+        diagnosis_payload: dict[str, Any],
+    ) -> InfermedicaQuestion | None:
+        """Extract and validate diagnosis question payload."""
+
+        question_data = diagnosis_payload.get("question")
+        if not isinstance(question_data, dict):
+            return None
+        try:
+            return InfermedicaQuestion.model_validate(question_data)
+        except Exception:
+            logger.exception(
+                "Invalid diagnosis question payload for follow-up parsing."
+            )
+            return None
+
+    @staticmethod
     def _build_question_card(question: InfermedicaQuestion) -> dict[str, Any]:
         """Convert Infermedica follow-up question to frontend question card."""
 
         question_choices: list[QuestionChoice] = []
-        has_multi_items = len(question.items) > 1
-        for item in question.items:
-            item_name = item.name.strip()
-            for choice in item.choices:
-                label = (
-                    f"{item_name}: {choice.label}"
-                    if has_multi_items and item_name
-                    else choice.label
-                )
+        if SimpleLangGraphAgent._is_group_single_question(question):
+            for item in question.items:
+                label = item.name.strip() or item.id
                 question_choices.append(
                     QuestionChoice(
-                        choice_id=SimpleLangGraphAgent._build_evidence_choice_token(
-                            item.id, choice.id
+                        choice_id=SimpleLangGraphAgent._build_group_single_choice_token(
+                            item.id
                         ),
                         choice=label,
                         selected=False,
                     )
                 )
+        else:
+            has_multi_items = len(question.items) > 1
+            for item in question.items:
+                item_name = item.name.strip()
+                for choice in item.choices:
+                    label = (
+                        f"{item_name}: {choice.label}"
+                        if has_multi_items and item_name
+                        else choice.label
+                    )
+                    question_choices.append(
+                        QuestionChoice(
+                            choice_id=SimpleLangGraphAgent._build_evidence_choice_token(
+                                item.id, choice.id
+                            ),
+                            choice=label,
+                            selected=False,
+                        )
+                    )
         question_choices.append(
             QuestionChoice(
                 choice_id=FINAL_RESULT_CHOICE_ID,
@@ -179,6 +281,43 @@ class SimpleLangGraphAgent:
             question=question.text,
             question_choices=question_choices,
         ).model_dump()
+
+    @staticmethod
+    def _apply_group_single_selection(
+        *, selected_evidence_id: str, state: GraphState
+    ) -> dict[str, Any]:
+        """Apply group-single top-level selection to evidence state."""
+
+        diagnosis_payload = state.get("diagnosis_payload", {})
+        if not isinstance(diagnosis_payload, dict):
+            return {"user_wants_final_result": True}
+
+        question = SimpleLangGraphAgent._extract_question_from_payload(
+            diagnosis_payload
+        )
+        if question is None:
+            return {"user_wants_final_result": True}
+        if not SimpleLangGraphAgent._is_group_single_question(question):
+            return {"user_wants_final_result": True}
+
+        updates = SimpleLangGraphAgent._build_group_single_evidence_updates(
+            question=question,
+            selected_evidence_id=selected_evidence_id,
+        )
+        if not updates:
+            return {"user_wants_final_result": True}
+
+        next_evidence = state.get("evidence", [])
+        for update in updates:
+            next_evidence = SimpleLangGraphAgent._update_evidence(
+                next_evidence,
+                evidence_id=update["id"],
+                choice_id=update["choice_id"],
+            )
+        return {
+            "evidence": next_evidence,
+            "user_wants_final_result": False,
+        }
 
     @staticmethod
     def _update_evidence(
@@ -252,6 +391,7 @@ class SimpleLangGraphAgent:
             "parse_mentions": parse_mentions,
             "evidence": evidence,
             "has_parse_evidence": has_parse_evidence,
+            "user_choice_history": [],
             "user_wants_final_result": False,
         }
 
@@ -329,10 +469,24 @@ class SimpleLangGraphAgent:
 
         question_card = state.get("question_card")
         if not isinstance(question_card, dict) or not question_card:
-            return {"selected_kb_choice": FINAL_RESULT_CHOICE_ID}
+            selected_choice = FINAL_RESULT_CHOICE_ID
+            return {
+                "selected_kb_choice": selected_choice,
+                "user_choice_history": self._append_user_choice_history(
+                    state=state,
+                    selected_choice=selected_choice,
+                ),
+            }
         human_answer = interrupt(question_card)
         selected_choice = self._extract_choice_id_from_interrupt_answer(human_answer)
-        return {"selected_kb_choice": selected_choice or FINAL_RESULT_CHOICE_ID}
+        resolved_choice = selected_choice or FINAL_RESULT_CHOICE_ID
+        return {
+            "selected_kb_choice": resolved_choice,
+            "user_choice_history": self._append_user_choice_history(
+                state=state,
+                selected_choice=resolved_choice,
+            ),
+        }
 
     def _apply_user_choice_to_evidence(self, state: GraphState) -> dict[str, Any]:
         """Apply selected option to evidence or mark final-result preference."""
@@ -340,6 +494,15 @@ class SimpleLangGraphAgent:
         selected_choice = (state.get("selected_kb_choice") or "").strip()
         if selected_choice == FINAL_RESULT_CHOICE_ID or not selected_choice:
             return {"user_wants_final_result": True}
+
+        selected_group_single_evidence_id = self._parse_group_single_choice_token(
+            selected_choice
+        )
+        if selected_group_single_evidence_id is not None:
+            return self._apply_group_single_selection(
+                selected_evidence_id=selected_group_single_evidence_id,
+                state=state,
+            )
 
         parsed_choice = self._parse_evidence_choice_token(selected_choice)
         if parsed_choice is None:
@@ -461,16 +624,27 @@ class SimpleLangGraphAgent:
         return self._checkpointer
 
     async def create_graph(self) -> CompiledStateGraph:
-        """Create the graph and attach SQLite checkpointer."""
+        """Create the diagnosis interview graph.
+
+        Architecture:
+        1. Parse all accumulated user text into initial evidence.
+        2. If no evidence is found, ask the user for richer symptom details and stop.
+        3. If evidence exists, call diagnosis KB and either:
+           - ask a follow-up question and loop with user-selected evidence updates, or
+           - generate final diagnosis summary and finish.
+        """
 
         graph_builder = StateGraph(GraphState)
+        # Stage 1: parse user input and decide whether follow-up is needed.
         graph_builder.add_node("parse_first_stage", self._parse_first_stage)
         graph_builder.add_node("first_stage_need_more", self._first_stage_need_more)
+        # Stage 2: diagnosis KB iteration with optional human-in-the-loop selection.
         graph_builder.add_node("diagnosis_kb_step", self._diagnosis_kb_step)
         graph_builder.add_node("ask_human_for_kb_choice", self._ask_human_for_kb_choice)
         graph_builder.add_node(
             "apply_user_choice_to_evidence", self._apply_user_choice_to_evidence
         )
+        # Stage 3: final LLM summary for diagnosis payload.
         graph_builder.add_node("final_diagnosis_summary", self._final_diagnosis_summary)
         graph_builder.add_edge(START, "parse_first_stage")
         graph_builder.add_conditional_edges(
@@ -649,6 +823,27 @@ class SimpleLangGraphAgent:
         if not isinstance(messages, list):
             return []
         return [message for message in messages if isinstance(message, BaseMessage)]
+
+    async def get_user_choice_history(self, session_id: str) -> list[dict[str, str]]:
+        """Get persisted user choice history by thread ID."""
+
+        graph = await self._get_graph()
+        config = {"configurable": {"thread_id": session_id}}
+        snapshot = await graph.aget_state(config=config)
+        values = getattr(snapshot, "values", {}) or {}
+        choice_history = values.get("user_choice_history", [])
+        if not isinstance(choice_history, list):
+            return []
+
+        normalized: list[dict[str, str]] = []
+        for item in choice_history:
+            if not isinstance(item, dict):
+                continue
+            choice_id = item.get("choice_id")
+            if not isinstance(choice_id, str) or not choice_id.strip():
+                continue
+            normalized.append({"choice_id": choice_id.strip()})
+        return normalized
 
     async def close(self) -> None:
         """Close SQLite checkpointer resources if they exist."""

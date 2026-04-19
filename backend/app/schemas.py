@@ -52,10 +52,15 @@ class SessionMessageResponse(BaseModel):
     content: str
 
 
+class SessionChoiceResponse(BaseModel):
+    choice_id: str
+
+
 class SessionDetailResponse(BaseModel):
     id: str
     name: str
     messages: list[SessionMessageResponse]
+    user_choices: list[SessionChoiceResponse] = Field(default_factory=list)
 
 
 class LoginRequest(BaseModel):

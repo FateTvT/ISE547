@@ -61,6 +61,16 @@ export type LoginRequest = {
 };
 
 /**
+ * SessionChoiceResponse
+ */
+export type SessionChoiceResponse = {
+    /**
+     * Choice Id
+     */
+    choice_id: string;
+};
+
+/**
  * SessionDetailResponse
  */
 export type SessionDetailResponse = {
@@ -76,6 +86,10 @@ export type SessionDetailResponse = {
      * Messages
      */
     messages: Array<SessionMessageResponse>;
+    /**
+     * User Choices
+     */
+    user_choices?: Array<SessionChoiceResponse>;
 };
 
 /**
