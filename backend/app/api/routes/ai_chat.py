@@ -38,6 +38,11 @@ async def stream_chat(
 
     existing_session = db.get(ChatSession, resolved_session_id)
     if existing_session is None:
+        if request.resume:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Session not found for resume",
+            )
         db.add(
             ChatSession(
                 id=resolved_session_id,
@@ -56,6 +61,7 @@ async def stream_chat(
     async for event in stream_langgraph_chat(
         message=request.message or "",
         session_id=resolved_session_id,
+        resume=request.resume,
     ):
         yield event
 

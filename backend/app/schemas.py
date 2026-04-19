@@ -16,6 +16,7 @@ class HelloResponse(BaseModel):
 class AIChatRequest(BaseModel):
     message: str | None = None
     session_id: str | None = None
+    resume: str | None = None
 
 
 class QuestionChoice(BaseModel):

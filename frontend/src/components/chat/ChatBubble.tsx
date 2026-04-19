@@ -7,12 +7,21 @@ type ChatBubbleProps = {
 }
 
 export function ChatBubble({ role, content }: ChatBubbleProps) {
+  const isUser = role === 'user'
+  const isInterrupt = role === 'interrupt'
+  const bubbleBackground = isUser
+    ? '#3182ce'
+    : isInterrupt
+      ? 'rgba(214, 158, 46, 0.18)'
+      : 'rgba(255, 255, 255, 0.08)'
+  const title = isUser ? 'You' : isInterrupt ? 'Interrupt' : 'AI'
+
   return (
     <div
       style={{
         width: '100%',
         display: 'flex',
-        justifyContent: role === 'user' ? 'flex-end' : 'flex-start',
+        justifyContent: isUser ? 'flex-end' : 'flex-start',
       }}
     >
       <div
@@ -21,8 +30,9 @@ export function ChatBubble({ role, content }: ChatBubbleProps) {
           minWidth: '88px',
           padding: '12px 16px',
           borderRadius: '12px',
-          background: role === 'user' ? '#3182ce' : 'rgba(255, 255, 255, 0.08)',
+          background: bubbleBackground,
           color: '#fff',
+          border: isInterrupt ? '1px solid rgba(214, 158, 46, 0.55)' : 'none',
           minHeight: '48px',
           wordBreak: 'break-word',
           overflowWrap: 'anywhere',
@@ -36,7 +46,7 @@ export function ChatBubble({ role, content }: ChatBubbleProps) {
             marginBottom: '4px',
           }}
         >
-          {role === 'user' ? 'You' : 'AI'}
+          {title}
         </div>
         {role === 'assistant' ? (
           <ReactMarkdown

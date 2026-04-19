@@ -4,14 +4,44 @@ import {
   streamChatApiV1AiChatStreamPost,
 } from '../client/sdk.gen';
 import type { SessionDetailResponse, SessionResponse } from '../client/types.gen';
+import {
+  AI_CHAT_STREAM_EVENT,
+  type AiChatErrorEventPayload,
+  type AiChatInterruptEventPayload,
+  type AiChatQuestionChoice,
+  type AiChatMessageEventPayload,
+  type AiChatQuestionCard,
+  type AiChatStreamEventType,
+} from '../schema/ai_chat_stream.schema';
 
-export type MockStreamMessage = {
-  index: number;
-  message: string;
-};
+export type MockStreamMessage = AiChatMessageEventPayload;
+export type MockStreamError = AiChatErrorEventPayload;
+export type MockStreamInterrupt = AiChatInterruptEventPayload;
+
+export type ParsedStreamEvent =
+  | {
+      type: typeof AI_CHAT_STREAM_EVENT.MESSAGE;
+      payload: MockStreamMessage;
+    }
+  | {
+      type: typeof AI_CHAT_STREAM_EVENT.ERROR;
+      payload: MockStreamError;
+    }
+  | {
+      type: typeof AI_CHAT_STREAM_EVENT.INTERRUPT;
+      payload: MockStreamInterrupt;
+    };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object';
+}
+
+function isEventType(value: unknown): value is AiChatStreamEventType {
+  return (
+    value === AI_CHAT_STREAM_EVENT.MESSAGE ||
+    value === AI_CHAT_STREAM_EVENT.ERROR ||
+    value === AI_CHAT_STREAM_EVENT.INTERRUPT
+  );
 }
 
 function isMockStreamMessage(value: unknown): value is MockStreamMessage {
@@ -20,6 +50,51 @@ function isMockStreamMessage(value: unknown): value is MockStreamMessage {
   }
 
   return typeof value.index === 'number' && typeof value.message === 'string';
+}
+
+function isMockStreamError(value: unknown): value is MockStreamError {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return typeof value.message === 'string';
+}
+
+function isMockStreamInterrupt(value: unknown): value is MockStreamInterrupt {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return (
+    typeof value.question === 'string' &&
+    Array.isArray(value.question_choices) &&
+    value.question_choices.every(isQuestionChoice)
+  );
+}
+
+function isQuestionChoice(value: unknown): value is AiChatQuestionChoice {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return (
+    typeof value.choice_id === 'string' &&
+    typeof value.choice === 'string' &&
+    typeof value.selected === 'boolean'
+  );
+}
+
+function toQuestionCardFromString(value: string): AiChatQuestionCard {
+  return {
+    question: value,
+    question_choices: [
+      {
+        choice_id: 'free-text',
+        choice: value,
+        selected: false,
+      },
+    ],
+  };
 }
 
 function parseMaybeJson(value: string): unknown {
@@ -31,23 +106,64 @@ function parseMaybeJson(value: string): unknown {
 }
 
 export function parseMockStreamChunk(chunk: unknown): MockStreamMessage | null {
+  const parsed = parseStreamEventChunk(chunk);
+  if (!parsed || parsed.type !== AI_CHAT_STREAM_EVENT.MESSAGE) {
+    return null;
+  }
+  return parsed.payload;
+}
+
+export function parseStreamEventChunk(chunk: unknown): ParsedStreamEvent | null {
   if (isMockStreamMessage(chunk)) {
-    return chunk;
+    return {
+      type: AI_CHAT_STREAM_EVENT.MESSAGE,
+      payload: chunk,
+    };
   }
 
   if (isRecord(chunk) && 'data' in chunk) {
-    return parseMockStreamChunk(chunk.data);
+    const eventType = isEventType(chunk.event) ? chunk.event : null;
+    const parsedData =
+      typeof chunk.data === 'string' ? parseMaybeJson(chunk.data) : chunk.data;
+
+    if (eventType === AI_CHAT_STREAM_EVENT.ERROR) {
+      if (isMockStreamError(parsedData)) {
+        return {
+          type: AI_CHAT_STREAM_EVENT.ERROR,
+          payload: parsedData,
+        };
+      }
+      if (typeof parsedData === 'string') {
+        return {
+          type: AI_CHAT_STREAM_EVENT.ERROR,
+          payload: { message: parsedData },
+        };
+      }
+      return null;
+    }
+
+    if (eventType === AI_CHAT_STREAM_EVENT.INTERRUPT) {
+      if (isMockStreamInterrupt(parsedData)) {
+        return {
+          type: AI_CHAT_STREAM_EVENT.INTERRUPT,
+          payload: parsedData,
+        };
+      }
+      if (typeof parsedData === 'string') {
+        return {
+          type: AI_CHAT_STREAM_EVENT.INTERRUPT,
+          payload: toQuestionCardFromString(parsedData),
+        };
+      }
+      return null;
+    }
+
+    return parseStreamEventChunk(parsedData);
   }
 
   if (typeof chunk === 'string') {
     const parsed = parseMaybeJson(chunk);
-    if (isMockStreamMessage(parsed)) {
-      return parsed;
-    }
-
-    if (isRecord(parsed) && 'data' in parsed) {
-      return parseMockStreamChunk(parsed.data);
-    }
+    return parseStreamEventChunk(parsed);
   }
 
   return null;
@@ -55,14 +171,20 @@ export function parseMockStreamChunk(chunk: unknown): MockStreamMessage | null {
 
 export async function createMockChatStream(
   signal: AbortSignal,
-  message: string,
+  message?: string,
   sessionId?: string,
+  resume?: string,
 ): Promise<AsyncIterable<unknown>> {
+  const body = {
+    message,
+    session_id: sessionId,
+    resume,
+  } as unknown as NonNullable<
+    Parameters<typeof streamChatApiV1AiChatStreamPost>[0]['body']
+  >;
+
   const { stream } = await streamChatApiV1AiChatStreamPost({
-    body: {
-      message,
-      session_id: sessionId,
-    },
+    body,
     signal,
     sseMaxRetryAttempts: 1,
   });

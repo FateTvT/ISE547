@@ -20,8 +20,18 @@ export default function HomePage() {
   const [sessions, setSessions] = useState<ChatSessionItem[]>([])
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null)
   const [prompt, setPrompt] = useState('')
-  const { loading, err, messages, sendMessage, stopStream, setSessionId, replaceMessages } =
-    useAiChat()
+  const {
+    loading,
+    err,
+    inputBlocked,
+    messages,
+    sendMessage,
+    submitSelectedQuestionChoice,
+    stopStream,
+    setSessionId,
+    replaceMessages,
+    selectQuestionChoice,
+  } = useAiChat()
 
   useEffect(() => {
     const loadCurrentUser = async () => {
@@ -178,7 +188,12 @@ export default function HomePage() {
                 paddingRight: '6px',
               }}
             >
-              <StreamReplyBox messages={messages} loading={loading} />
+              <StreamReplyBox
+                messages={messages}
+                loading={loading}
+                onSelectQuestionChoice={selectQuestionChoice}
+                onSubmitQuestionChoice={submitSelectedQuestionChoice}
+              />
             </div>
 
             <div
@@ -199,7 +214,7 @@ export default function HomePage() {
                 bg="rgba(255, 255, 255, 0.04)"
                 borderColor="rgba(255, 255, 255, 0.24)"
                 _placeholder={{ color: 'gray.400' }}
-                disabled={loading}
+                disabled={loading || inputBlocked}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter') {
                     void handleSend()
@@ -212,6 +227,7 @@ export default function HomePage() {
                 _hover={{ bg: '#2b6cb0' }}
                 onClick={() => void handleSend()}
                 loading={loading}
+                disabled={inputBlocked}
               >
                 Send
               </Button>

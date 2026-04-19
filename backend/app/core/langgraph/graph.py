@@ -4,6 +4,7 @@ from typing import Annotated, Any, TypedDict
 
 from langchain_core.messages import (
     AIMessage,
+    AIMessageChunk,
     BaseMessage,
     HumanMessage,
     SystemMessage,
@@ -13,14 +14,23 @@ from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.graph.state import CompiledStateGraph
+from langgraph.types import Command, interrupt
 
 from app.core.config import settings
+from app.schemas import QuestionCard, QuestionChoice
 
 
 class GraphState(TypedDict):
     """Graph state with message history."""
 
     messages: Annotated[list[BaseMessage], add_messages]
+
+
+class StreamEvent(TypedDict):
+    """Unified stream event returned by graph streaming."""
+
+    event: str
+    payload: str | dict[str, Any]
 
 
 class SimpleLangGraphAgent:
@@ -43,6 +53,29 @@ class SimpleLangGraphAgent:
 
         response = await self._llm.ainvoke(state["messages"])
         return {"messages": [response]}
+
+    def _ask_human(self, _state: GraphState) -> dict[str, list[BaseMessage]]:
+        """Pause graph and expose a question card via interrupt."""
+
+        question_card = QuestionCard(
+            question="请确认你现在最需要的帮助方向。",
+            question_choices=[
+                QuestionChoice(
+                    choice_id="relief-first",
+                    choice="我需要先快速缓解当前症状",
+                    selected=False,
+                ),
+                QuestionChoice(
+                    choice_id="diagnosis-first",
+                    choice="我想先明确可能的诊断方向",
+                    selected=False,
+                ),
+            ],
+        )
+        human_answer = interrupt(question_card.model_dump())
+        if human_answer is None:
+            return {"messages": []}
+        return {"messages": [HumanMessage(content=str(human_answer))]}
 
     def _resolve_sqlite_conn_string(self) -> str:
         """Resolve SQLite checkpointer path from shared DATABASE_URL."""
@@ -82,8 +115,12 @@ class SimpleLangGraphAgent:
 
         graph_builder = StateGraph(GraphState)
         graph_builder.add_node("chat", self._chat)
+        graph_builder.add_node("ask_human", self._ask_human)
+        graph_builder.add_node("chat_after_resume", self._chat)
         graph_builder.add_edge(START, "chat")
-        graph_builder.add_edge("chat", END)
+        graph_builder.add_edge("chat", "ask_human")
+        graph_builder.add_edge("ask_human", "chat_after_resume")
+        graph_builder.add_edge("chat_after_resume", END)
 
         checkpointer = await self._get_sqlite_checkpointer()
         return graph_builder.compile(
@@ -115,25 +152,74 @@ class SimpleLangGraphAgent:
         return str(messages[-1].content)
 
     async def stream_response(
-        self, user_message: str, session_id: str
-    ) -> AsyncGenerator[str, None]:
-        """Stream LLM response token-by-token."""
+        self, user_message: str, session_id: str, resume: str | None = None
+    ) -> AsyncGenerator[StreamEvent, None]:
+        """Stream LLM chunks and interrupt payloads."""
 
         graph = await self._get_graph()
         config = {"configurable": {"thread_id": session_id}}
-        input_state = {
-            "messages": [
-                SystemMessage(content=settings.SYSTEM_PROMPT),
-                HumanMessage(content=user_message),
-            ]
-        }
+        graph_input: dict[str, Any] | Command
+        if resume is not None:
+            graph_input = Command(resume=resume)
+        else:
+            graph_input = {
+                "messages": [
+                    SystemMessage(content=settings.SYSTEM_PROMPT),
+                    HumanMessage(content=user_message),
+                ]
+            }
 
-        async for chunk, _ in graph.astream(
-            input_state, config=config, stream_mode="messages"
+        async for chunk in graph.astream(
+            graph_input,
+            config=config,
+            stream_mode=["messages", "updates"],
+            version="v2",
         ):
-            content = getattr(chunk, "content", None)
-            if isinstance(content, str) and content:
-                yield content
+            if not isinstance(chunk, dict):
+                continue
+
+            chunk_type = chunk.get("type")
+            if chunk_type == "messages":
+                data = chunk.get("data")
+                if not isinstance(data, tuple) or not data:
+                    continue
+                message_chunk = data[0]
+                if not isinstance(message_chunk, AIMessageChunk):
+                    continue
+                if isinstance(message_chunk.content, str) and message_chunk.content:
+                    yield {
+                        "event": "message",
+                        "payload": message_chunk.content,
+                    }
+                continue
+
+            if chunk_type != "updates":
+                continue
+            updates = chunk.get("data")
+            if not isinstance(updates, dict):
+                continue
+            interrupts = updates.get("__interrupt__")
+            if not interrupts:
+                continue
+
+            first_interrupt = interrupts[0]
+            interrupt_payload = getattr(first_interrupt, "value", None)
+            if isinstance(interrupt_payload, dict):
+                yield {"event": "interrupt", "payload": interrupt_payload}
+            elif interrupt_payload is not None:
+                yield {
+                    "event": "interrupt",
+                    "payload": {
+                        "question": str(interrupt_payload),
+                        "question_choices": [
+                            {
+                                "choice_id": "free-text",
+                                "choice": str(interrupt_payload),
+                                "selected": False,
+                            }
+                        ],
+                    },
+                }
 
     async def get_history(self, session_id: str) -> list[BaseMessage]:
         """Get persisted message history by thread ID."""

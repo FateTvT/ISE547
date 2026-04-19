@@ -295,6 +295,25 @@ export type MeApiV1AuthMeGetResponses = {
 
 export type MeApiV1AuthMeGetResponse = MeApiV1AuthMeGetResponses[keyof MeApiV1AuthMeGetResponses];
 
+export type HealthHealthGetData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/health';
+};
+
+export type HealthHealthGetResponses = {
+    /**
+     * Response Health Health Get
+     * Successful Response
+     */
+    200: {
+        [key: string]: string;
+    };
+};
+
+export type HealthHealthGetResponse = HealthHealthGetResponses[keyof HealthHealthGetResponses];
+
 export type ClientOptions = {
     baseUrl: `${string}://${string}` | (string & {});
 };

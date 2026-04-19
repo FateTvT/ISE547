@@ -1,12 +1,20 @@
 import type { ChatMessage } from '../../hooks/useAiChat';
 import { ChatBubble } from './ChatBubble';
+import { QuestionCard } from './QuestionCard';
 
 type StreamReplyBoxProps = {
   messages: ChatMessage[];
   loading: boolean;
+  onSelectQuestionChoice: (messageId: string, choiceId: string) => void;
+  onSubmitQuestionChoice: (messageId: string) => Promise<void>;
 };
 
-export function StreamReplyBox({ messages, loading }: StreamReplyBoxProps) {
+export function StreamReplyBox({
+  messages,
+  loading,
+  onSelectQuestionChoice,
+  onSubmitQuestionChoice,
+}: StreamReplyBoxProps) {
   if (messages.length === 0) {
     return (
       <div
@@ -28,7 +36,17 @@ export function StreamReplyBox({ messages, loading }: StreamReplyBoxProps) {
   return (
     <>
       {messages.map((message) => (
-        <ChatBubble key={message.id} role={message.role} content={message.content} />
+        message.role === 'interrupt' && message.questionCard ? (
+          <QuestionCard
+            key={message.id}
+            card={message.questionCard}
+            loading={loading}
+            onSelect={(choiceId) => onSelectQuestionChoice(message.id, choiceId)}
+            onSubmit={() => void onSubmitQuestionChoice(message.id)}
+          />
+        ) : (
+          <ChatBubble key={message.id} role={message.role} content={message.content} />
+        )
       ))}
 
       {loading && (

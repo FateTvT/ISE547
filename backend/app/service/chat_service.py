@@ -77,44 +77,37 @@ async def stream_mock_chat() -> AsyncIterator[dict[str, str]]:
 
 
 async def stream_langgraph_chat(
-    message: str, session_id: str
+    message: str, session_id: str, resume: str | None = None
 ) -> AsyncIterator[dict[str, str]]:
     """Stream LangGraph/OpenRouter response as SSE payloads."""
 
     index = 0
     try:
-        async for token in langgraph_agent.stream_response(
-            user_message=message, session_id=session_id
+        async for stream_event in langgraph_agent.stream_response(
+            user_message=message, session_id=session_id, resume=resume
         ):
-            if not token:
+            event_name = str(stream_event.get("event", "")).strip()
+            payload = stream_event.get("payload")
+            if event_name == AIChatStreamEventType.MESSAGE.value:
+                if not isinstance(payload, str) or not payload:
+                    continue
+                index += 1
+                data = {"index": index, "message": payload}
+                yield {
+                    "event": AIChatStreamEventType.MESSAGE.value,
+                    "id": str(index),
+                    "data": json.dumps(data, ensure_ascii=False),
+                }
                 continue
-            index += 1
-            payload = {"index": index, "message": token}
-            yield {
-                "event": AIChatStreamEventType.MESSAGE.value,
-                "id": str(index),
-                "data": json.dumps(payload, ensure_ascii=False),
-            }
-        interrupt_payload = QuestionCard(
-            question="请确认你现在最需要的帮助方向。",
-            question_choices=[
-                QuestionChoice(
-                    choice_id="relief-first",
-                    choice="我需要先快速缓解当前症状",
-                    selected=False,
-                ),
-                QuestionChoice(
-                    choice_id="diagnosis-first",
-                    choice="我想先明确可能的诊断方向",
-                    selected=False,
-                ),
-            ],
-        )
-        yield {
-            "event": AIChatStreamEventType.INTERRUPT.value,
-            "id": "interrupt-1",
-            "data": json.dumps(interrupt_payload.model_dump(), ensure_ascii=False),
-        }
+
+            if event_name == AIChatStreamEventType.INTERRUPT.value:
+                if not isinstance(payload, dict):
+                    continue
+                yield {
+                    "event": AIChatStreamEventType.INTERRUPT.value,
+                    "id": "interrupt-1",
+                    "data": json.dumps(payload, ensure_ascii=False),
+                }
     except Exception:
         payload = {"message": "AI response stream failed. Please retry later."}
         yield {
