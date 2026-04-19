@@ -1,17 +1,40 @@
 # ISE547
 
-简洁使用说明。
+Quick setup and architecture notes for the ISE547 project.
 
-## 环境要求
+## Requirements
 
 - Python 3.12+
 - `uv`
 - Bun
-- Supervisor（生产部署时）
+- Supervisor (for production deployment)
 
-## 本地开发
+## Demo Website
 
-### 启动后端（8000 端口）
+Try the online demo here: [https://ise547.link/home](https://ise547.link/home).
+
+## Graph Architecture
+
+The backend diagnosis flow is implemented in `backend/app/core/langgraph/graph.py`.
+
+```text
+START
+  -> parse_first_stage
+       ├─ has evidence -> diagnosis_kb_step
+       └─ no evidence  -> first_stage_need_more -> END
+
+diagnosis_kb_step
+  ├─ has follow-up question and user continues
+  │    -> ask_human_for_kb_choice
+  │    -> apply_user_choice_to_evidence
+  │    -> diagnosis_kb_step (loop)
+  └─ no follow-up question or user requests final result
+       -> final_diagnosis_summary -> END
+```
+
+## Local Development
+
+### Start Backend (port 8000)
 
 ```bash
 cd backend
@@ -19,7 +42,7 @@ uv sync
 make dev
 ```
 
-### 启动前端
+### Start Frontend
 
 ```bash
 cd frontend
@@ -27,22 +50,22 @@ bun install
 bun run dev
 ```
 
-## 更新前端 API Client
+## Regenerate Frontend API Client
 
 ```bash
 cd backend
 make gen-client
 ```
 
-## 生产部署
+## Production Deployment
 
-在项目根目录执行：
+Run from the repository root:
 
 ```bash
 BACKEND_PORT=8000 bash ops/deploy.sh deploy
 ```
 
-常用命令：
+Common commands:
 
 ```bash
 bash ops/deploy.sh status
@@ -50,7 +73,7 @@ bash ops/deploy.sh restart
 bash ops/deploy.sh stop
 ```
 
-## 日志查看
+## Logs
 
 ```bash
 tail -f backend/logs/backend.stderr.log
