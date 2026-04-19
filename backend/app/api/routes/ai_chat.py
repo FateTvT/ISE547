@@ -1,3 +1,5 @@
+import json
+import logging
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -9,6 +11,7 @@ from app.core.db import get_session
 from app.models.session import Session as ChatSession
 from app.schemas import (
     AIChatRequest,
+    AIChatStreamEventType,
     SessionDetailResponse,
     SessionResponse,
     UserResponse,
@@ -20,6 +23,7 @@ from app.service.chat_service import (
 )
 
 router = APIRouter()
+logger = logging.getLogger("uvicorn.error")
 
 
 @router.get("/mock", response_class=EventSourceResponse)
@@ -35,6 +39,14 @@ async def stream_chat(
     db: Session = Depends(get_session),
 ):
     resolved_session_id = request.session_id or str(uuid4())
+    logger.info(
+        "ai-chat stream request: session_id=%s resume=%s age=%s sex=%s message_len=%s",
+        resolved_session_id,
+        bool(request.resume),
+        request.age,
+        request.sex,
+        len((request.message or "").strip()),
+    )
 
     existing_session = db.get(ChatSession, resolved_session_id)
     if existing_session is None:
@@ -58,12 +70,40 @@ async def stream_chat(
             detail="Session does not belong to current user",
         )
 
-    async for event in stream_langgraph_chat(
-        message=request.message or "",
-        session_id=resolved_session_id,
-        resume=request.resume,
-    ):
-        yield event
+    streamed_any_event = False
+    streamed_event_count = 0
+    try:
+        async for event in stream_langgraph_chat(
+            message=request.message or "",
+            session_id=resolved_session_id,
+            resume=request.resume,
+            age=request.age,
+            sex=request.sex,
+        ):
+            streamed_any_event = True
+            streamed_event_count += 1
+            yield event
+    except Exception as exc:
+        if not streamed_any_event:
+            logger.exception("AI chat stream failed before first event.")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=str(exc) or "AI stream initialization failed",
+            ) from exc
+
+        logger.exception("AI chat stream failed during SSE response.")
+        payload = {"message": str(exc) or "AI response stream failed."}
+        yield {
+            "event": AIChatStreamEventType.ERROR.value,
+            "id": "error",
+            "data": json.dumps(payload, ensure_ascii=False),
+        }
+    else:
+        logger.info(
+            "ai-chat stream finished: session_id=%s events=%s",
+            resolved_session_id,
+            streamed_event_count,
+        )
 
 
 @router.get("/sessions", response_model=list[SessionResponse])

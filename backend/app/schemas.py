@@ -1,6 +1,6 @@
 from enum import Enum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 
 
 class AIChatStreamEventType(str, Enum):
@@ -17,6 +17,18 @@ class AIChatRequest(BaseModel):
     message: str | None = None
     session_id: str | None = None
     resume: str | None = None
+    age: int = Field(default=30, ge=0, le=100)
+    sex: str = "undefine"
+
+    @field_validator("sex")
+    @classmethod
+    def validate_sex(cls, value: str) -> str:
+        """Validate allowed sex values for diagnosis state."""
+
+        normalized = value.strip().lower()
+        if normalized not in {"male", "female", "undefine"}:
+            raise ValueError("sex must be one of: male, female, undefine")
+        return normalized
 
 
 class QuestionChoice(BaseModel):

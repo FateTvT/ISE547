@@ -17,6 +17,7 @@ import {
 export type MockStreamMessage = AiChatMessageEventPayload;
 export type MockStreamError = AiChatErrorEventPayload;
 export type MockStreamInterrupt = AiChatInterruptEventPayload;
+export type PatientSex = 'male' | 'female' | 'undefine';
 
 export type ParsedStreamEvent =
   | {
@@ -174,11 +175,15 @@ export async function createMockChatStream(
   message?: string,
   sessionId?: string,
   resume?: string,
+  age?: number,
+  sex?: PatientSex,
 ): Promise<AsyncIterable<unknown>> {
   const body = {
     message,
     session_id: sessionId,
     resume,
+    age,
+    sex,
   } as unknown as NonNullable<
     Parameters<typeof streamChatApiV1AiChatStreamPost>[0]['body']
   >;

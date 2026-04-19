@@ -12,6 +12,18 @@ export type AiChatRequest = {
      * Session Id
      */
     session_id?: string | null;
+    /**
+     * Resume
+     */
+    resume?: string | null;
+    /**
+     * Age
+     */
+    age?: number;
+    /**
+     * Sex
+     */
+    sex?: string;
 };
 
 /**

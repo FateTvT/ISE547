@@ -8,7 +8,11 @@ import {
   type ChatSessionItem,
 } from '../components/chat/SessionSidebar'
 import { clearAccessToken, fetchCurrentUser, type CurrentUser } from '../service/auth.api'
-import { fetchSessionDetail, fetchSessions } from '../service/ai_chat.api'
+import {
+  fetchSessionDetail,
+  fetchSessions,
+  type PatientSex,
+} from '../service/ai_chat.api'
 
 export default function HomePage() {
   const navigate = useNavigate()
@@ -20,6 +24,8 @@ export default function HomePage() {
   const [sessions, setSessions] = useState<ChatSessionItem[]>([])
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null)
   const [prompt, setPrompt] = useState('')
+  const [ageInput, setAgeInput] = useState('')
+  const [sex, setSex] = useState<PatientSex | ''>('')
   const {
     loading,
     err,
@@ -93,8 +99,20 @@ export default function HomePage() {
     setSessionDetailLoading(false)
   }
 
+  const parsedAge = Number(ageInput)
+  const hasValidAge =
+    ageInput.trim().length > 0 &&
+    Number.isFinite(parsedAge) &&
+    parsedAge >= 0 &&
+    parsedAge <= 100
+  const hasSelectedSex = sex !== ''
+  const demographicsReady = hasValidAge && hasSelectedSex
+
   const handleSend = async () => {
-    await sendMessage(prompt)
+    if (!demographicsReady) {
+      return
+    }
+    await sendMessage(prompt, parsedAge, sex as PatientSex)
   }
 
   if (authChecking) {
@@ -158,6 +176,59 @@ export default function HomePage() {
             <Text color="gray.500" mt={1} fontSize="xs">
               Select a session on the left to load its history.
             </Text>
+            <div
+              style={{
+                marginTop: '12px',
+                display: 'flex',
+                gap: '12px',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+              }}
+            >
+              <Input
+                value={ageInput}
+                onChange={(event) => setAgeInput(event.target.value)}
+                placeholder="Age (0-100)"
+                type="number"
+                min={0}
+                max={100}
+                width="160px"
+                color="white"
+                bg="rgba(255, 255, 255, 0.04)"
+                borderColor="rgba(255, 255, 255, 0.24)"
+                _placeholder={{ color: 'gray.400' }}
+              />
+              <select
+                value={sex}
+                onChange={(event) => setSex(event.target.value as PatientSex | '')}
+                style={{
+                  height: '40px',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(255, 255, 255, 0.24)',
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  color: 'white',
+                  padding: '0 10px',
+                }}
+              >
+                <option value="" style={{ color: 'black' }}>
+                  Select sex
+                </option>
+                <option value="male" style={{ color: 'black' }}>
+                  male
+                </option>
+                <option value="female" style={{ color: 'black' }}>
+                  female
+                </option>
+                <option value="undefine" style={{ color: 'black' }}>
+                  undefine
+                </option>
+              </select>
+              {!demographicsReady && (
+                <Text color="orange.200" fontSize="xs">
+                  Select age and sex before typing.
+                </Text>
+              )}
+            </div>
 
             {err && (
               <Text color="red.300" mt={4}>
@@ -214,7 +285,7 @@ export default function HomePage() {
                 bg="rgba(255, 255, 255, 0.04)"
                 borderColor="rgba(255, 255, 255, 0.24)"
                 _placeholder={{ color: 'gray.400' }}
-                disabled={loading || inputBlocked}
+                disabled={loading || inputBlocked || !demographicsReady}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter') {
                     void handleSend()
@@ -227,7 +298,7 @@ export default function HomePage() {
                 _hover={{ bg: '#2b6cb0' }}
                 onClick={() => void handleSend()}
                 loading={loading}
-                disabled={inputBlocked}
+                disabled={inputBlocked || !demographicsReady || !prompt.trim()}
               >
                 Send
               </Button>

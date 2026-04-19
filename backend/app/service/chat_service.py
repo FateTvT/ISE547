@@ -1,11 +1,14 @@
 import asyncio
 import json
+import logging
 from collections.abc import AsyncIterator
 
 from langchain_core.messages import BaseMessage
 
 from app.core.langgraph.graph import langgraph_agent
 from app.schemas import AIChatStreamEventType, QuestionCard, QuestionChoice
+
+logger = logging.getLogger("uvicorn.error")
 
 MOCK_RESPONSE_CHUNKS = [
     "根据",
@@ -77,44 +80,53 @@ async def stream_mock_chat() -> AsyncIterator[dict[str, str]]:
 
 
 async def stream_langgraph_chat(
-    message: str, session_id: str, resume: str | None = None
+    message: str,
+    session_id: str,
+    resume: str | None = None,
+    age: int = 30,
+    sex: str = "undefine",
 ) -> AsyncIterator[dict[str, str]]:
     """Stream LangGraph/OpenRouter response as SSE payloads."""
 
+    logger.info(
+        "stream_langgraph_chat start: session_id=%s resume=%s age=%s sex=%s message_len=%s",
+        session_id,
+        bool(resume),
+        age,
+        sex,
+        len(message.strip()),
+    )
     index = 0
-    try:
-        async for stream_event in langgraph_agent.stream_response(
-            user_message=message, session_id=session_id, resume=resume
-        ):
-            event_name = str(stream_event.get("event", "")).strip()
-            payload = stream_event.get("payload")
-            if event_name == AIChatStreamEventType.MESSAGE.value:
-                if not isinstance(payload, str) or not payload:
-                    continue
-                index += 1
-                data = {"index": index, "message": payload}
-                yield {
-                    "event": AIChatStreamEventType.MESSAGE.value,
-                    "id": str(index),
-                    "data": json.dumps(data, ensure_ascii=False),
-                }
+    async for stream_event in langgraph_agent.stream_response(
+        user_message=message,
+        session_id=session_id,
+        resume=resume,
+        age=age,
+        sex=sex,
+    ):
+        event_name = str(stream_event.get("event", "")).strip()
+        payload = stream_event.get("payload")
+        if event_name == AIChatStreamEventType.MESSAGE.value:
+            if not isinstance(payload, str) or not payload:
                 continue
+            index += 1
+            data = {"index": index, "message": payload}
+            yield {
+                "event": AIChatStreamEventType.MESSAGE.value,
+                "id": str(index),
+                "data": json.dumps(data, ensure_ascii=False),
+            }
+            continue
 
-            if event_name == AIChatStreamEventType.INTERRUPT.value:
-                if not isinstance(payload, dict):
-                    continue
-                yield {
-                    "event": AIChatStreamEventType.INTERRUPT.value,
-                    "id": "interrupt-1",
-                    "data": json.dumps(payload, ensure_ascii=False),
-                }
-    except Exception:
-        payload = {"message": "AI response stream failed. Please retry later."}
-        yield {
-            "event": AIChatStreamEventType.ERROR.value,
-            "id": "error",
-            "data": json.dumps(payload, ensure_ascii=False),
-        }
+        if event_name == AIChatStreamEventType.INTERRUPT.value:
+            if not isinstance(payload, dict):
+                continue
+            yield {
+                "event": AIChatStreamEventType.INTERRUPT.value,
+                "id": "interrupt-1",
+                "data": json.dumps(payload, ensure_ascii=False),
+            }
+    logger.info("stream_langgraph_chat end: session_id=%s chunks=%s", session_id, index)
 
 
 def _resolve_message_role(message: BaseMessage) -> str:

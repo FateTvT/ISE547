@@ -1,5 +1,6 @@
 from collections.abc import AsyncGenerator
 from contextlib import AbstractAsyncContextManager
+import logging
 from typing import Annotated, Any, TypedDict
 
 from langchain_core.messages import (
@@ -14,16 +15,28 @@ from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.graph.state import CompiledStateGraph
-from langgraph.types import Command, interrupt
+from langgraph.types import Command
 
 from app.core.config import settings
-from app.schemas import QuestionCard, QuestionChoice
+from app.core.langgraph.prompts import (
+    FIRST_STAGE_NO_EVIDENCE_SYSTEM_PROMPT,
+    build_first_stage_no_evidence_user_prompt,
+)
+from app.infermedica_schemas import InfermedicaAge, InfermedicaParseRequest
+from app.service.diagnosis_kb_service import DiagnosisKnowledgeBaseService
+
+logger = logging.getLogger("uvicorn.error")
 
 
-class GraphState(TypedDict):
-    """Graph state with message history."""
+class GraphState(TypedDict, total=False):
+    """Graph state for first-stage interview flow."""
 
     messages: Annotated[list[BaseMessage], add_messages]
+    age: int
+    sex: str
+    accumulated_user_text: str
+    parse_mentions: list[dict[str, str]]
+    has_parse_evidence: bool
 
 
 class StreamEvent(TypedDict):
@@ -47,35 +60,146 @@ class SimpleLangGraphAgent:
         self._graph: CompiledStateGraph | None = None
         self._checkpointer: AsyncSqliteSaver | None = None
         self._checkpointer_context: AbstractAsyncContextManager[Any] | None = None
+        self._diagnosis_kb_service = DiagnosisKnowledgeBaseService()
 
-    async def _chat(self, state: GraphState) -> dict[str, list[AIMessage]]:
-        """Call LLM with current conversation state."""
+    @staticmethod
+    def _normalize_message_content(content: Any) -> str:
+        """Normalize LangChain message content into plain text."""
 
-        response = await self._llm.ainvoke(state["messages"])
+        if isinstance(content, str):
+            return content
+        if isinstance(content, list):
+            parts: list[str] = []
+            for item in content:
+                if isinstance(item, str):
+                    parts.append(item)
+                    continue
+                if isinstance(item, dict):
+                    text = item.get("text")
+                    if isinstance(text, str):
+                        parts.append(text)
+            return "".join(parts)
+        return str(content)
+
+    @staticmethod
+    def _resolve_parse_sex(sex: str | None) -> str | None:
+        """Normalize user sex for Infermedica parse payload."""
+
+        normalized = (sex or "undefine").strip().lower()
+        if normalized in {"male", "female"}:
+            return normalized
+        return None
+
+    @staticmethod
+    def _build_accumulated_user_text(messages: list[BaseMessage]) -> str:
+        """Merge all user messages into one plain text buffer."""
+
+        user_texts = [
+            message.content.strip()
+            for message in messages
+            if isinstance(message, HumanMessage)
+            and isinstance(message.content, str)
+            and message.content.strip()
+        ]
+        return "\n".join(user_texts)
+
+    async def _parse_first_stage(self, state: GraphState) -> dict[str, Any]:
+        """Parse cumulative user text and extract symptom evidence."""
+
+        messages = state.get("messages", [])
+        accumulated_user_text = self._build_accumulated_user_text(messages)
+        parse_mentions: list[dict[str, str]] = []
+        has_parse_evidence = False
+
+        if accumulated_user_text:
+            logger.info(
+                "parse_first_stage start: text_len=%s age=%s sex=%s",
+                len(accumulated_user_text),
+                state.get("age", 30),
+                state.get("sex"),
+            )
+            parse_response = await self._diagnosis_kb_service.parse(
+                InfermedicaParseRequest(
+                    text=accumulated_user_text,
+                    age=InfermedicaAge(value=state.get("age", 30)),
+                    sex=self._resolve_parse_sex(state.get("sex")),
+                )
+            )
+            logger.info("Infermedica parse response: %s", parse_response.model_dump())
+            parse_mentions = [
+                {"id": mention.id, "choice_id": mention.choice_id}
+                for mention in parse_response.mentions
+            ]
+            has_parse_evidence = bool(parse_mentions)
+            logger.info(
+                "parse_first_stage decision: has_parse_evidence=%s mentions_count=%s",
+                has_parse_evidence,
+                len(parse_mentions),
+            )
+        else:
+            logger.info("parse_first_stage skipped: no accumulated user text.")
+
+        return {
+            "accumulated_user_text": accumulated_user_text,
+            "parse_mentions": parse_mentions,
+            "has_parse_evidence": has_parse_evidence,
+        }
+
+    async def _first_stage_need_more(
+        self, state: GraphState
+    ) -> dict[str, list[AIMessage]]:
+        """Use LLM follow-up when parse evidence is unavailable."""
+
+        fallback_response = AIMessage(
+            content=(
+                "I could not extract enough symptom evidence yet. "
+                "Please describe your main symptom, when it started, how severe it is, "
+                "and what makes it better or worse."
+            )
+        )
+        accumulated_user_text = state.get("accumulated_user_text", "")
+        parse_mentions = state.get("parse_mentions", [])
+        llm_input = [
+            SystemMessage(content=FIRST_STAGE_NO_EVIDENCE_SYSTEM_PROMPT),
+            HumanMessage(
+                content=build_first_stage_no_evidence_user_prompt(
+                    accumulated_user_text=accumulated_user_text,
+                    age=state.get("age", 30),
+                    sex=state.get("sex", "undefine"),
+                    parse_mentions_count=len(parse_mentions),
+                )
+            ),
+        ]
+        try:
+            llm_response = await self._llm.ainvoke(llm_input)
+        except Exception:
+            logger.exception("first_stage_need_more LLM invocation failed.")
+            return {"messages": [fallback_response]}
+
+        response_text = self._normalize_message_content(llm_response.content).strip()
+        if not response_text:
+            return {"messages": [fallback_response]}
+        return {"messages": [AIMessage(content=response_text)]}
+
+    def _first_stage_done(self, state: GraphState) -> dict[str, list[AIMessage]]:
+        """Send a stage-complete message when evidence is ready."""
+
+        mentions_count = len(state.get("parse_mentions", []))
+        response = AIMessage(
+            content=(
+                "Thank you. I have enough structured symptom evidence to proceed "
+                f"to the next diagnosis step. Parsed evidence count: {mentions_count}."
+            )
+        )
         return {"messages": [response]}
 
-    def _ask_human(self, _state: GraphState) -> dict[str, list[BaseMessage]]:
-        """Pause graph and expose a question card via interrupt."""
+    @staticmethod
+    def _route_after_parse(state: GraphState) -> str:
+        """Route to follow-up question or finish first stage."""
 
-        question_card = QuestionCard(
-            question="请确认你现在最需要的帮助方向。",
-            question_choices=[
-                QuestionChoice(
-                    choice_id="relief-first",
-                    choice="我需要先快速缓解当前症状",
-                    selected=False,
-                ),
-                QuestionChoice(
-                    choice_id="diagnosis-first",
-                    choice="我想先明确可能的诊断方向",
-                    selected=False,
-                ),
-            ],
-        )
-        human_answer = interrupt(question_card.model_dump())
-        if human_answer is None:
-            return {"messages": []}
-        return {"messages": [HumanMessage(content=str(human_answer))]}
+        if state.get("has_parse_evidence"):
+            return "first_stage_done"
+        return "first_stage_need_more"
 
     def _resolve_sqlite_conn_string(self) -> str:
         """Resolve SQLite checkpointer path from shared DATABASE_URL."""
@@ -114,13 +238,20 @@ class SimpleLangGraphAgent:
         """Create the graph and attach SQLite checkpointer."""
 
         graph_builder = StateGraph(GraphState)
-        graph_builder.add_node("chat", self._chat)
-        graph_builder.add_node("ask_human", self._ask_human)
-        graph_builder.add_node("chat_after_resume", self._chat)
-        graph_builder.add_edge(START, "chat")
-        graph_builder.add_edge("chat", "ask_human")
-        graph_builder.add_edge("ask_human", "chat_after_resume")
-        graph_builder.add_edge("chat_after_resume", END)
+        graph_builder.add_node("parse_first_stage", self._parse_first_stage)
+        graph_builder.add_node("first_stage_need_more", self._first_stage_need_more)
+        graph_builder.add_node("first_stage_done", self._first_stage_done)
+        graph_builder.add_edge(START, "parse_first_stage")
+        graph_builder.add_conditional_edges(
+            "parse_first_stage",
+            self._route_after_parse,
+            {
+                "first_stage_need_more": "first_stage_need_more",
+                "first_stage_done": "first_stage_done",
+            },
+        )
+        graph_builder.add_edge("first_stage_need_more", END)
+        graph_builder.add_edge("first_stage_done", END)
 
         checkpointer = await self._get_sqlite_checkpointer()
         return graph_builder.compile(
@@ -134,7 +265,13 @@ class SimpleLangGraphAgent:
             self._graph = await self.create_graph()
         return self._graph
 
-    async def get_response(self, user_message: str, session_id: str) -> str:
+    async def get_response(
+        self,
+        user_message: str,
+        session_id: str,
+        age: int = 30,
+        sex: str = "undefine",
+    ) -> str:
         """Get one complete LLM response."""
 
         graph = await self._get_graph()
@@ -143,7 +280,9 @@ class SimpleLangGraphAgent:
             "messages": [
                 SystemMessage(content=settings.SYSTEM_PROMPT),
                 HumanMessage(content=user_message),
-            ]
+            ],
+            "age": age,
+            "sex": sex,
         }
         result = await graph.ainvoke(input_state, config=config)
         messages = result.get("messages", [])
@@ -152,7 +291,12 @@ class SimpleLangGraphAgent:
         return str(messages[-1].content)
 
     async def stream_response(
-        self, user_message: str, session_id: str, resume: str | None = None
+        self,
+        user_message: str,
+        session_id: str,
+        resume: str | None = None,
+        age: int = 30,
+        sex: str = "undefine",
     ) -> AsyncGenerator[StreamEvent, None]:
         """Stream LLM chunks and interrupt payloads."""
 
@@ -166,9 +310,12 @@ class SimpleLangGraphAgent:
                 "messages": [
                     SystemMessage(content=settings.SYSTEM_PROMPT),
                     HumanMessage(content=user_message),
-                ]
+                ],
+                "age": age,
+                "sex": sex,
             }
 
+        chunk_emitted = False
         async for chunk in graph.astream(
             graph_input,
             config=config,
@@ -187,6 +334,7 @@ class SimpleLangGraphAgent:
                 if not isinstance(message_chunk, AIMessageChunk):
                     continue
                 if isinstance(message_chunk.content, str) and message_chunk.content:
+                    chunk_emitted = True
                     yield {
                         "event": "message",
                         "payload": message_chunk.content,
@@ -198,6 +346,24 @@ class SimpleLangGraphAgent:
             updates = chunk.get("data")
             if not isinstance(updates, dict):
                 continue
+
+            if not chunk_emitted:
+                for node_update in updates.values():
+                    if not isinstance(node_update, dict):
+                        continue
+                    node_messages = node_update.get("messages")
+                    if not isinstance(node_messages, list):
+                        continue
+                    for node_message in node_messages:
+                        if not isinstance(node_message, AIMessage):
+                            continue
+                        response_text = self._normalize_message_content(
+                            node_message.content
+                        ).strip()
+                        if not response_text:
+                            continue
+                        yield {"event": "message", "payload": response_text}
+
             interrupts = updates.get("__interrupt__")
             if not interrupts:
                 continue

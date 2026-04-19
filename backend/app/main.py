@@ -1,7 +1,9 @@
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.main import api_router
 from app import models  # noqa: F401
+from app.api.main import api_router
 from app.core.config import settings
 from app.core.db import engine
 from app.service.auth_service import init_default_user
@@ -9,6 +11,7 @@ from sqlmodel import SQLModel, Session
 import uvicorn
 
 app = FastAPI()
+logging.getLogger("app").setLevel(logging.INFO)
 
 app.add_middleware(
     CORSMiddleware,

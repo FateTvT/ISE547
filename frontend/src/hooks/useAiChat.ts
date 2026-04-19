@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   createMockChatStream,
   parseStreamEventChunk,
+  type PatientSex,
 } from '../service/ai_chat.api';
 import { AI_CHAT_STREAM_EVENT } from '../schema/ai_chat_stream.schema';
 import type { AiChatQuestionCard } from '../schema/ai_chat_stream.schema';
@@ -23,7 +24,7 @@ type UseAiChatResult = {
   err: string | null;
   inputBlocked: boolean;
   messages: ChatMessage[];
-  sendMessage: (prompt: string) => Promise<void>;
+  sendMessage: (prompt: string, age: number, sex: PatientSex) => Promise<void>;
   submitSelectedQuestionChoice: (messageId: string) => Promise<void>;
   stopStream: () => void;
   setSessionId: (sessionId: string) => void;
@@ -86,7 +87,7 @@ export function useAiChat(): UseAiChatResult {
   }, []);
 
   const sendMessage = useCallback(
-    async (prompt: string) => {
+    async (prompt: string, age: number, sex: PatientSex) => {
       const trimmedPrompt = prompt.trim();
       if (!trimmedPrompt || loading || pendingInterruptMessageId) {
         return;
@@ -114,6 +115,9 @@ export function useAiChat(): UseAiChatResult {
           controller.signal,
           trimmedPrompt,
           sessionIdRef.current,
+          undefined,
+          age,
+          sex,
         );
 
         for await (const chunk of stream) {
