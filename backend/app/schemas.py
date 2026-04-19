@@ -1,4 +1,12 @@
+from enum import Enum
+
 from pydantic import BaseModel
+
+
+class AIChatStreamEventType(str, Enum):
+    MESSAGE = "message"
+    ERROR = "error"
+    INTERRUPT = "interrupt"
 
 
 class HelloResponse(BaseModel):
@@ -8,6 +16,17 @@ class HelloResponse(BaseModel):
 class AIChatRequest(BaseModel):
     message: str | None = None
     session_id: str | None = None
+
+
+class QuestionChoice(BaseModel):
+    choice_id: str
+    choice: str
+    selected: bool
+
+
+class QuestionCard(BaseModel):
+    question: str
+    question_choices: list[QuestionChoice]
 
 
 class SessionResponse(BaseModel):

@@ -5,6 +5,7 @@ from collections.abc import AsyncIterator
 from langchain_core.messages import BaseMessage
 
 from app.core.langgraph.graph import langgraph_agent
+from app.schemas import AIChatStreamEventType, QuestionCard, QuestionChoice
 
 MOCK_RESPONSE_CHUNKS = [
     "根据",
@@ -42,12 +43,34 @@ async def stream_mock_chat() -> AsyncIterator[dict[str, str]]:
 
     for index, message in enumerate(MOCK_RESPONSE_CHUNKS, start=1):
         await asyncio.sleep(0.2)
+        if index == 1:
+            interrupt_payload = QuestionCard(
+                question="请先确认是否存在药物过敏史？",
+                question_choices=[
+                    QuestionChoice(
+                        choice_id="allergy-none",
+                        choice="没有已知药物过敏史",
+                        selected=False,
+                    ),
+                    QuestionChoice(
+                        choice_id="allergy-unknown",
+                        choice="不确定，之前没有系统记录",
+                        selected=False,
+                    ),
+                ],
+            )
+            yield {
+                "event": AIChatStreamEventType.INTERRUPT.value,
+                "id": "interrupt-1",
+                "data": json.dumps(interrupt_payload.model_dump(), ensure_ascii=False),
+            }
+
         payload = {
             "index": index,
             "message": message,
         }
         yield {
-            "event": "message",
+            "event": AIChatStreamEventType.MESSAGE.value,
             "id": str(index),
             "data": json.dumps(payload, ensure_ascii=False),
         }
@@ -59,16 +82,44 @@ async def stream_langgraph_chat(
     """Stream LangGraph/OpenRouter response as SSE payloads."""
 
     index = 0
-    async for token in langgraph_agent.stream_response(
-        user_message=message, session_id=session_id
-    ):
-        if not token:
-            continue
-        index += 1
-        payload = {"index": index, "message": token}
+    try:
+        async for token in langgraph_agent.stream_response(
+            user_message=message, session_id=session_id
+        ):
+            if not token:
+                continue
+            index += 1
+            payload = {"index": index, "message": token}
+            yield {
+                "event": AIChatStreamEventType.MESSAGE.value,
+                "id": str(index),
+                "data": json.dumps(payload, ensure_ascii=False),
+            }
+        interrupt_payload = QuestionCard(
+            question="请确认你现在最需要的帮助方向。",
+            question_choices=[
+                QuestionChoice(
+                    choice_id="relief-first",
+                    choice="我需要先快速缓解当前症状",
+                    selected=False,
+                ),
+                QuestionChoice(
+                    choice_id="diagnosis-first",
+                    choice="我想先明确可能的诊断方向",
+                    selected=False,
+                ),
+            ],
+        )
         yield {
-            "event": "message",
-            "id": str(index),
+            "event": AIChatStreamEventType.INTERRUPT.value,
+            "id": "interrupt-1",
+            "data": json.dumps(interrupt_payload.model_dump(), ensure_ascii=False),
+        }
+    except Exception:
+        payload = {"message": "AI response stream failed. Please retry later."}
+        yield {
+            "event": AIChatStreamEventType.ERROR.value,
+            "id": "error",
             "data": json.dumps(payload, ensure_ascii=False),
         }
 
