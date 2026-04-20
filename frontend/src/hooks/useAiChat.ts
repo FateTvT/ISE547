@@ -17,6 +17,8 @@ export type ChatMessage = {
   role: ChatBubbleRole;
   content: string;
   questionCard?: AiChatQuestionCard;
+  questionSubmitted?: boolean;
+  questionReadOnly?: boolean;
 };
 
 type UseAiChatResult = {
@@ -68,7 +70,8 @@ export function useAiChat(): UseAiChatResult {
         if (
           message.id !== messageId ||
           message.role !== 'interrupt' ||
-          !message.questionCard
+          !message.questionCard ||
+          message.questionReadOnly
         ) {
           return message;
         }
@@ -139,6 +142,8 @@ export function useAiChat(): UseAiChatResult {
                 role: 'interrupt',
                 content: parsed.payload.question,
                 questionCard: parsed.payload,
+                questionSubmitted: false,
+                questionReadOnly: false,
               },
             ]);
             setPendingInterruptMessageId(interruptMessageId);
@@ -204,6 +209,18 @@ export function useAiChat(): UseAiChatResult {
         setErr('Please select one option before submitting.');
         return;
       }
+      setMessages((prev) =>
+        prev.map((message) => {
+          if (message.id !== messageId || message.role !== 'interrupt') {
+            return message;
+          }
+          return {
+            ...message,
+            questionSubmitted: true,
+            questionReadOnly: true,
+          };
+        }),
+      );
 
       const controller = new AbortController();
       abortControllerRef.current?.abort();
@@ -239,6 +256,8 @@ export function useAiChat(): UseAiChatResult {
                 role: 'interrupt',
                 content: parsed.payload.question,
                 questionCard: parsed.payload,
+                questionSubmitted: false,
+                questionReadOnly: false,
               },
             ]);
             setPendingInterruptMessageId(interruptMessageId);

@@ -61,6 +61,38 @@ export type LoginRequest = {
 };
 
 /**
+ * QuestionCard
+ */
+export type QuestionCard = {
+    /**
+     * Question
+     */
+    question: string;
+    /**
+     * Question Choices
+     */
+    question_choices: Array<QuestionChoice>;
+};
+
+/**
+ * QuestionChoice
+ */
+export type QuestionChoice = {
+    /**
+     * Choice Id
+     */
+    choice_id: string;
+    /**
+     * Choice
+     */
+    choice: string;
+    /**
+     * Selected
+     */
+    selected: boolean;
+};
+
+/**
  * SessionChoiceResponse
  */
 export type SessionChoiceResponse = {
@@ -68,6 +100,7 @@ export type SessionChoiceResponse = {
      * Choice Id
      */
     choice_id: string;
+    question_card?: QuestionCard | null;
 };
 
 /**

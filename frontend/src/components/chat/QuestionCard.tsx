@@ -5,9 +5,18 @@ type QuestionCardProps = {
   loading: boolean
   onSelect: (choiceId: string) => void
   onSubmit: () => void
+  showSubmitButton?: boolean
+  readOnly?: boolean
 }
 
-export function QuestionCard({ card, loading, onSelect, onSubmit }: QuestionCardProps) {
+export function QuestionCard({
+  card,
+  loading,
+  onSelect,
+  onSubmit,
+  showSubmitButton = true,
+  readOnly = false,
+}: QuestionCardProps) {
   const selectedChoice = card.question_choices.find((choice) => choice.selected)
 
   return (
@@ -37,7 +46,7 @@ export function QuestionCard({ card, loading, onSelect, onSubmit }: QuestionCard
               key={choice.choice_id}
               type="button"
               onClick={() => onSelect(choice.choice_id)}
-              disabled={loading}
+              disabled={loading || readOnly}
               style={{
                 textAlign: 'left',
                 padding: '10px 12px',
@@ -49,32 +58,34 @@ export function QuestionCard({ card, loading, onSelect, onSubmit }: QuestionCard
                   ? '1px solid rgba(99, 179, 237, 0.9)'
                   : '1px solid rgba(255, 255, 255, 0.16)',
                 color: '#fff',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                opacity: loading ? 0.7 : 1,
+                cursor: loading || readOnly ? 'not-allowed' : 'pointer',
+                opacity: loading || readOnly ? 0.7 : 1,
               }}
             >
               {choice.choice}
             </button>
           ))}
         </div>
-        <button
-          type="button"
-          onClick={onSubmit}
-          disabled={!selectedChoice || loading}
-          style={{
-            marginTop: '12px',
-            width: '100%',
-            padding: '10px 12px',
-            borderRadius: '8px',
-            border: 'none',
-            background: !selectedChoice || loading ? 'rgba(49, 130, 206, 0.45)' : '#3182ce',
-            color: '#fff',
-            cursor: !selectedChoice || loading ? 'not-allowed' : 'pointer',
-            fontWeight: 600,
-          }}
-        >
-          提交
-        </button>
+        {showSubmitButton && (
+          <button
+            type="button"
+            onClick={onSubmit}
+            disabled={!selectedChoice || loading}
+            style={{
+              marginTop: '12px',
+              width: '100%',
+              padding: '10px 12px',
+              borderRadius: '8px',
+              border: 'none',
+              background: !selectedChoice || loading ? 'rgba(49, 130, 206, 0.45)' : '#3182ce',
+              color: '#fff',
+              cursor: !selectedChoice || loading ? 'not-allowed' : 'pointer',
+              fontWeight: 600,
+            }}
+          >
+            提交
+          </button>
+        )}
       </div>
     </div>
   )

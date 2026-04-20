@@ -17,7 +17,7 @@ from langchain_openai import ChatOpenAI
 
 SCRIPT_DIR = Path(__file__).parent
 BACKEND_DIR = SCRIPT_DIR.parent
-DATA_PATH = Path("data/updated_result_with_BERT_eval_120.csv")
+DATA_PATH = Path("data/updated_result_with_BERT_eval_120_cleaned_cleaned.csv")
 TARGET_COLUMN = "Diagnosis Category"
 FEATURE_COLUMNS = [
     "age",
@@ -30,46 +30,28 @@ FEATURE_COLUMNS = [
     "Diagnosis",
 ]
 
-POSSIBLE_DIAGNOSIS = [
-    "Avascular Necrosis of Bilateral Hips",
-    "Avascular Necrosis of the Left Hip",
-    "Avascular Necrosis of the Right Hip",
-    "Bone Marrow Edema Syndrome of Bilateral Hips",
-    "Bone Marrow Edema Syndrome of the Left Hip",
-    "Bone Marrow Edema Syndrome of the right Hip",
-    "acetabular fracture",
-    "acetabular fracture / femur fracture",
-    "acl rehab evaluation",
-    "adverse events post spine surgery",
-    "arthritic hip",
-    "back pain diagnosis using decision support system",
-    "back pain diagnosis using pain drawings",
-    "back pain triage from pain drawing",
-    "cobb angle estimation",
-    "discharge destination",
-    "discharge destination post surgery",
-    "implant design optimisation",
-    "intraoperative somatosensory evoked potential monitoring",
-    "neck of femur fracture",
-    "osteoarthritis",
-    "osteoarthritis  rt.",
-    "osteoarthritis diagnosis & severity",
-    "osteoarthritis diagnosis with infrared",
-    "osteolysis",
-    "osteoporosis diagnosis from dexa",
-    "osteoporotic fractures",
-    "predicting cost of spinal fusion",
-    "predicting osteoporosis from qct",
-    "recovery post arthroplasty",
-    "rheumatoid arthritis",
-    "risk of hip fracture prediction",
-    "rotator cuff strength",
-    "scoliosis diagnosis by gait analysis",
-    "spinal cord injury diagnosis from skin impedence",
-    "spinal cord injury from diffusion tensor imaging",
-    "spinal stenosis grading",
-    "spinal tumors",
-    "trochanter fracture",
+ALLOWED_CATEGORY_CHOICES = [
+    "Bone-related disorders",
+    "Hip-related disorders",
+    "Musculoskeletal disorders",
+    "Other",
+    "Spinal disorders",
+]
+
+ALLOWED_DIAGNOSIS_CHOICES = [
+    "Avascular Necrosis",
+    "Clinical & Rehab Ops",
+    "Fractures",
+    "Inflammatory & Other Joint",
+    "Osteoarthritis",
+    "Osteoporosis",
+    "Spinal Disorders",
+    "Technical & Eng Tasks",
+    "cervical spine injury prediction",
+    "lumbar spine mri interpretation",
+    "prolonged opioid prescription",
+    "spine level identification using uss",
+    "x-ray diagnosis",
 ]
 LLM_PROMPT_TEMPLATE = """
 You are a medical triage assistant for an academic evaluation project.
@@ -82,6 +64,11 @@ Based only on the information provided, return:
 2) the three most likely candidate diagnoses ranked from most likely to less likely.
 
 You must always provide an answer even if the information is incomplete.
+
+Hard constraints:
+- Category MUST be selected from this list only: {allowed_categories}
+- Top-1/Top-2/Top-3 Diagnosis MUST each be selected from this list only: {allowed_diagnoses}
+- Do not output values outside these two lists.
 
 Keep your answer concise and structured exactly in this format:
 
@@ -107,19 +94,15 @@ Diagnosis Interface Result (JSON): {diagnosis_result}
 
 
 def _ensure_backend_on_path() -> Path:
-    candidates = [
-        BACKEND_DIR,
-    ]
-    for candidate in candidates:
-        if (candidate / "app").exists():
-            candidate_str = str(candidate)
-            if candidate_str not in sys.path:
-                sys.path.insert(0, candidate_str)
-            return candidate
+    if (BACKEND_DIR / "app").exists():
+        candidate_str = str(BACKEND_DIR)
+        if candidate_str not in sys.path:
+            sys.path.insert(0, candidate_str)
+        return BACKEND_DIR
     raise ModuleNotFoundError("Cannot locate backend root containing app package.")
 
 
-BACKEND_ROOT = _ensure_backend_on_path()
+_ensure_backend_on_path()
 
 from app.core.config import settings  # noqa: E402
 
@@ -227,6 +210,8 @@ def build_llm_user_prompt(
         patient_history=patient_history,
         symptoms=symptoms,
         diagnosis_result=json.dumps(diagnosis_payload, ensure_ascii=False),
+        allowed_categories="; ".join(ALLOWED_CATEGORY_CHOICES),
+        allowed_diagnoses="; ".join(ALLOWED_DIAGNOSIS_CHOICES),
     )
 
 
@@ -267,6 +252,17 @@ def _conditions_from_diagnosis(
     return [item for item in conditions if isinstance(item, dict)]
 
 
+def _normalize_choice_text(value: str) -> str:
+    return " ".join(value.split()).strip().lower()
+
+
+def _pick_allowed_value(value: str, allowed_values: list[str]) -> str:
+    normalized_to_original = {
+        _normalize_choice_text(item): item for item in allowed_values
+    }
+    return normalized_to_original.get(_normalize_choice_text(value), "")
+
+
 def format_triage_output(raw_output: str, diagnosis_payload: dict[str, Any]) -> str:
     conditions = _conditions_from_diagnosis(diagnosis_payload)
 
@@ -281,7 +277,19 @@ def format_triage_output(raw_output: str, diagnosis_payload: dict[str, Any]) -> 
         for item in conditions
         if str(item.get("name", "")).strip()
     ]
-    top_fallbacks = (condition_names + ["Unknown", "Unknown", "Unknown"])[:3]
+    allowed_condition_names = [
+        mapped
+        for mapped in (
+            _pick_allowed_value(name, ALLOWED_DIAGNOSIS_CHOICES)
+            for name in condition_names
+        )
+        if mapped
+    ]
+    default_diagnosis = ALLOWED_DIAGNOSIS_CHOICES[0]
+    top_fallbacks = (
+        allowed_condition_names
+        + [default_diagnosis, default_diagnosis, default_diagnosis]
+    )[:3]
 
     if not category:
         first_category = ""
@@ -289,11 +297,14 @@ def format_triage_output(raw_output: str, diagnosis_payload: dict[str, Any]) -> 
             category_info = conditions[0].get("category")
             if isinstance(category_info, dict):
                 first_category = str(category_info.get("name", "")).strip()
-        category = first_category or "Unknown"
+        category = first_category
 
-    top1 = top1 or top_fallbacks[0]
-    top2 = top2 or top_fallbacks[1]
-    top3 = top3 or top_fallbacks[2]
+    mapped_category = _pick_allowed_value(category, ALLOWED_CATEGORY_CHOICES)
+    category = mapped_category or ALLOWED_CATEGORY_CHOICES[0]
+
+    top1 = _pick_allowed_value(top1, ALLOWED_DIAGNOSIS_CHOICES) or top_fallbacks[0]
+    top2 = _pick_allowed_value(top2, ALLOWED_DIAGNOSIS_CHOICES) or top_fallbacks[1]
+    top3 = _pick_allowed_value(top3, ALLOWED_DIAGNOSIS_CHOICES) or top_fallbacks[2]
 
     brief_reason = _first_two_sentences(brief_reason)
     if not brief_reason:

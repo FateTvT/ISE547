@@ -43,6 +43,8 @@ export function StreamReplyBox({
             loading={loading}
             onSelect={(choiceId) => onSelectQuestionChoice(message.id, choiceId)}
             onSubmit={() => void onSubmitQuestionChoice(message.id)}
+            showSubmitButton={!message.questionSubmitted}
+            readOnly={Boolean(message.questionReadOnly)}
           />
         ) : (
           <ChatBubble key={message.id} role={message.role} content={message.content} />

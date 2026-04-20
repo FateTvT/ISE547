@@ -1,0 +1,497 @@
+﻿case_id,system_type,system_name,prompt_id,run_mode,raw_output,gold_category,gold_diagnosis,age,gender,patient_history,symptoms,error
+0,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Spinal disorders
+Top-1 Diagnosis: Spinal Disorders
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The symptoms of lower back pain, stiff neck, nerve compression, and lumbar stiffness, combined with high interface probabilities for degenerative disc disease and spinal osteoarthritis, indicate a primary spinal etiology with degenerative and potential inflammatory joint involvement.",Spinal disorders,Spinal Disorders,53,male,Regular physiotherapy sessions.,"Lower back pain, Stiff neck, Numb feeling in extremities, Fatigue in lower limbs, spinal pain, nerve compression, lumbar stiffness",
+1,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Inflammatory & Other Joint
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Osteoporosis
+Brief Reason: The patient's symptoms of joint aching, puffiness, stiffness, and fatigue, combined with the diagnostic interface's highest probability for rheumatoid and psoriatic arthritis, strongly indicate an inflammatory joint condition, with degenerative joint disease and bone density changes as secondary considerations.",Musculoskeletal disorders,Osteoarthritis,45,female,Similar condition diagnosed 4 years ago.,"Aching joints, Puffiness in joint areas, Muscle tiredness, Stiffness in movements",
+2,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Spinal Disorders
+Top-3 Diagnosis: Osteoporosis
+Brief Reason: The patient's demographic profile and symptoms of generalized discomfort with mobility limitations are highly consistent with degenerative joint or spinal conditions. The interface data indicating back or limb involvement further supports these common musculoskeletal etiologies.",Other,Technical & Eng Tasks,56,female,No significant medical history.,"Generalized discomfort, Mobility issues, Pain in affected area",
+3,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Avascular Necrosis
+Brief Reason: The patient's activity-worsened bilateral hip pain, groin discomfort, and reduced range of motion align with early joint degeneration, while inflammatory conditions and avascular necrosis remain important differentials for this age group.",Hip-related disorders,Avascular Necrosis,26,female,"The patient reports bilateral hip pain, worsened by physical activity. Physiotherapy and rest were recommended.","Discomfort in groin, Limited mobility, Challenges in walking, Reduced motion range in hip",
+4,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Avascular Necrosis
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The MRI explicitly confirms avascular necrosis in both hips, directly explaining the groin discomfort, stiffness, and weight-bearing difficulty. Secondary degenerative joint changes and inflammatory processes are also likely given the patient's age and symptom profile.",Hip-related disorders,Avascular Necrosis,70,female,MRI indicates avascular necrosis in both hips. The patient shows signs of hip stiffness and limited movement.,"Discomfort in groin, Hip stiffness, Trouble with weight support, Reduced motion range in hip",
+5,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Avascular Necrosis
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The patient's age, chronic groin discomfort, and restricted hip mobility strongly point to degenerative joint disease, with avascular necrosis and inflammatory conditions as secondary considerations.",Hip-related disorders,Avascular Necrosis,60,male,Chronic pain in affected area.,"Discomfort in groin, Restricted hip movement, Challenges in walking, Limited movement",
+6,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Inflammatory & Other Joint
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Osteoporosis
+Brief Reason: The patient's symptoms of joint aching, puffiness, stiffness, and muscle weakness align closely with inflammatory arthritides, while osteoarthritis and age-related bone density changes remain plausible secondary considerations for this demographic.",Musculoskeletal disorders,Osteoarthritis,56,female,Chronic pain in affected area.,"Aching joints, Puffiness in joint areas, Weakness in muscles, Stiffness in movements",
+7,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: The patient's age, bilateral hip pain worsened by activity, groin discomfort, and stiffness strongly align with hip osteoarthritis, which is also the highest probability condition in the interface results. Secondary considerations include inflammatory joint conditions and spinal nerve involvement given the overlapping symptom profile.",Hip-related disorders,Avascular Necrosis,62,male,"The patient reports bilateral hip pain, worsened by physical activity. Physiotherapy and rest were recommended.","Discomfort in groin, Hip stiffness, Difficulty bearing weight, Limited movement",
+8,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Fractures
+Brief Reason: The patient's age, activity-worsened bilateral hip pain, groin discomfort, and restricted mobility strongly align with degenerative joint changes, while other joint pathologies or structural injuries remain secondary considerations.",Hip-related disorders,Avascular Necrosis,52,female,"The patient reports bilateral hip pain, worsened by physical activity. Physiotherapy and rest were recommended.","Discomfort in groin, Restricted hip movement, Trouble with weight support, Decreased hip flexibility",
+9,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: The patient's advanced age, joint stiffness, and inflammation align closely with degenerative and inflammatory joint pathologies, which correspond to the highest probability scores in the provided diagnostic interface.",Musculoskeletal disorders,Osteoarthritis,67,female,No significant medical history.,"Joint stiffness, Inflammation around joints, Weakness in muscles, Stiffness in movements",
+10,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Inflammatory & Other Joint
+Top-2 Diagnosis: Spinal Disorders
+Top-3 Diagnosis: Avascular Necrosis
+Brief Reason: The patient's young age, bilateral hip and groin pain with restricted motion, and family history strongly suggest an inflammatory joint condition, while the interface output and weight-bearing difficulty also point to possible spinal referral or avascular necrosis.",Hip-related disorders,Avascular Necrosis,20,male,Long-standing pain in both hips. Family history of similar conditions reported.,"Discomfort in groin, Restricted hip movement, Difficulty bearing weight, Reduced motion range in hip",
+11,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: The patient's joint discomfort, swelling, and reduced mobility align with the interface's highest probabilities for osteoarthritis and inflammatory joint conditions, warranting further clinical evaluation.",Musculoskeletal disorders,Osteoarthritis,62,male,Prior treatment with medication.,"Joint discomfort, Puffiness in joint areas, Fatigue in limbs, Difficulty in moving freely",
+12,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Inflammatory & Other Joint
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Osteoporosis
+Brief Reason: The patient's multi-joint aching, swelling, and muscle weakness align with high algorithmic probabilities for rheumatoid and psoriatic arthritis, making inflammatory joint conditions the primary consideration, followed by osteoarthritis and osteoporosis.",Musculoskeletal disorders,Osteoarthritis,59,female,Family history of hip issues.,"Aching joints, Swelling in joints, Weakness in muscles, Difficulty in moving freely",
+13,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Spinal Disorders
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Fractures
+Brief Reason: The patient's buttock ache and hip stiffness strongly suggest referred spinal nerve irritation or joint inflammation, while difficulty bearing weight raises concern for underlying structural injury.",Hip-related disorders,Avascular Necrosis,28,male,Regular physiotherapy sessions.,"Aching in buttocks, Hip stiffness, Trouble with weight support, Decreased hip flexibility",
+14,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Inflammatory & Other Joint
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Osteoporosis
+Brief Reason: The reported joint puffiness, stiffness, and fatigue align with inflammatory conditions highlighted in the interface results, while age and gender make degenerative joint disease and bone density loss plausible secondary considerations.",Musculoskeletal disorders,Osteoarthritis,59,female,Regular physiotherapy sessions.,"Joint discomfort, Puffiness in joint areas, Fatigue in limbs, Stiffness in movements",
+15,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Bone-related disorders
+Top-1 Diagnosis: Osteoporosis
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Fractures
+Brief Reason: The explicit symptoms of decreased bone density and bone tenderness in a 67-year-old female strongly align with osteoporosis, while age-related stiffness and family history make osteoarthritis and potential fragility fractures the next most likely considerations.",Bone-related disorders,Osteoporosis,67,female,Family history of hip issues.,"Tenderness in bones, Osteoporosis symptoms, Stiffness in bones, Decreased bone density",
+16,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Bone-related disorders
+Top-1 Diagnosis: Osteoporosis
+Top-2 Diagnosis: Fractures
+Top-3 Diagnosis: Osteoarthritis
+Brief Reason: The patient's decreased bone density, bone soreness, and signs of fractures strongly align with osteoporosis, which inherently increases fracture susceptibility. Osteoarthritis is considered as a common differential for age-related restricted movement and joint discomfort.",Bone-related disorders,Fractures,52,male,Similar condition diagnosed 2 years ago.,"Bone soreness, Signs of fractures, Restricted movement, Decreased bone density",
+17,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Avascular Necrosis
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The patient's age, gradual onset of groin pain, restricted hip mobility, and limited response to physiotherapy strongly align with degenerative joint disease, while avascular necrosis and inflammatory joint conditions remain secondary considerations for hip pathology.",Hip-related disorders,Avascular Necrosis,67,male,Gradual onset of left hip pain with restricted range of motion. Physiotherapy has shown limited improvement.,"Discomfort in groin, Limited mobility, Difficulty bearing weight, Reduced motion range in hip",
+18,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Spinal Disorders
+Top-3 Diagnosis: Avascular Necrosis
+Brief Reason: Groin discomfort and limited mobility in a 59-year-old male strongly suggest hip joint pathology, with osteoarthritis being the most common cause. The interface probabilities also highlight spinal and joint conditions, warranting consideration of spinal disorders and avascular necrosis as secondary differentials.",Hip-related disorders,Fractures,59,male,No significant medical history.,"Discomfort in groin, Limited mobility, Challenges in walking, Limited movement",
+19,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Avascular Necrosis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Osteoarthritis
+Brief Reason: The MRI explicitly confirms avascular necrosis in both hips, directly explaining the groin discomfort, stiffness, and reduced range of motion. Inflammatory joint conditions and osteoarthritis remain relevant differentials for overlapping hip mobility symptoms.",Hip-related disorders,Avascular Necrosis,31,male,MRI indicates avascular necrosis in both hips. The patient shows signs of hip stiffness and limited movement.,"Discomfort in groin, Hip stiffness, Challenges in walking, Reduced motion range in hip",
+20,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: The patient's activity-worsened bilateral hip pain, groin discomfort, and restricted range of motion strongly correlate with degenerative joint changes, while inflammatory joint pathology and referred spinal nerve irritation are plausible secondary considerations based on the provided clinical data.",Hip-related disorders,Avascular Necrosis,42,female,"The patient reports bilateral hip pain, worsened by physical activity. Physiotherapy and rest were recommended.","Discomfort in groin, Restricted hip movement, Difficulty bearing weight, Reduced motion range in hip",
+21,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Bone-related disorders
+Top-1 Diagnosis: Osteoporosis
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Fractures
+Brief Reason: The explicit symptoms of decreased bone density and weak bones in an older adult strongly point to systemic bone loss, while limited joint mobility suggests concurrent degenerative changes, making osteoporosis and osteoarthritis the primary considerations with an elevated risk for fractures.",Bone-related disorders,Fractures,64,male,Recurring episodes over the past year.,"Tenderness in bones, Weak bones, Limited joint mobility, Decreased bone density",
+22,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Spinal disorders
+Top-1 Diagnosis: Spinal Disorders
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The patient's presentation of lower back and neck pain with nerve compression, tingling, and lumbar stiffness strongly aligns with primary spinal pathology and radiculopathy. The accompanying history of frequent joint pain and stiffness further supports degenerative or inflammatory joint involvement.",Spinal disorders,Spinal Disorders,58,male,Frequent joint pain and stiffness.,"Lower back pain, Pain in the neck area, Tingling in arms or legs, Tiredness in legs, spinal pain, nerve compression, lumbar stiffness",
+23,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Osteoporosis
+Brief Reason: The patient's age, chronic joint discomfort, swelling, and reduced mobility strongly align with degenerative joint disease, while inflammatory conditions and age-related bone density loss remain plausible secondary considerations.",Musculoskeletal disorders,Osteoarthritis,65,male,Recurring episodes over the past year.,"Joint discomfort, Swelling in joints, Weakness in muscles, Reduced mobility",
+24,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: The patient's age, joint stiffness, swelling, and the algorithm's high probability scores for knee, hand, and spinal osteoarthritis strongly point to degenerative joint disease, with inflammatory arthritis and spinal involvement as secondary considerations.",Musculoskeletal disorders,Osteoarthritis,63,male,Regular physiotherapy sessions.,"Joint stiffness, Swelling in joints, Fatigue in limbs, Stiffness in movements",
+25,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Inflammatory & Other Joint
+Top-2 Diagnosis: Avascular Necrosis
+Top-3 Diagnosis: Osteoarthritis
+Brief Reason: Groin discomfort with limited mobility and frequent joint stiffness in a young male aligns with inflammatory joint conditions or early hip pathology, consistent with the interface's high probability for inflammatory etiologies.",Hip-related disorders,Avascular Necrosis,28,male,Frequent joint pain and stiffness.,"Discomfort in groin, Limited mobility, Challenges in walking, Limited movement",
+26,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Spinal disorders
+Top-1 Diagnosis: Spinal Disorders
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: cervical spine injury prediction
+Brief Reason: Symptoms of spinal pain, nerve compression, lumbar stiffness, and extremity tingling align with degenerative spinal conditions and radiculopathy, supported by high algorithmic probabilities for disc degeneration and spinal osteoarthritis.",Spinal disorders,Spinal Disorders,63,female,Regular physiotherapy sessions.,"Aching spine, Stiff neck, Tingling in arms or legs, Fatigue in lower limbs, spinal pain, nerve compression, lumbar stiffness",
+27,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Inflammatory & Other Joint
+Top-2 Diagnosis: Spinal Disorders
+Top-3 Diagnosis: Osteoarthritis
+Brief Reason: The patient's young age, joint stiffness, inflammation, and fatigue strongly suggest an inflammatory arthropathy, with potential spinal involvement and degenerative joint changes as secondary considerations.",Musculoskeletal disorders,Inflammatory & Other Joint,22,male,Frequent joint pain and stiffness.,"Aching joints, Inflammation around joints, Muscle tiredness, Difficulty in moving freely",
+28,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Inflammatory & Other Joint
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Osteoporosis
+Brief Reason: The combination of joint swelling, stiffness, and muscle fatigue in a middle-aged female strongly suggests an inflammatory joint process, with degenerative and metabolic conditions as alternative considerations.",Musculoskeletal disorders,Osteoarthritis,44,female,Prior treatment with medication.,"Joint stiffness, Swelling in joints, Muscle tiredness, Stiffness in movements",
+29,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Bone-related disorders
+Top-1 Diagnosis: Osteoporosis
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The patient's advanced age, female sex, and explicit symptoms of bone weakening and tenderness strongly suggest a primary bone density condition, while joint stiffness and interface probabilities also indicate possible degenerative or inflammatory joint involvement.",Bone-related disorders,Fractures,76,female,Family history of hip issues.,"Tenderness in bones, Weak bones, Stiffness in bones, Weakening bones",
+30,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Spinal Disorders
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The patient's advanced age, chronic joint pain, stiffness, and high algorithmic probabilities for knee, spinal, and hand osteoarthritis strongly indicate degenerative joint disease. Spinal degeneration and other inflammatory joint conditions are also plausible contributors to the reported mobility issues and generalized discomfort.",Other,Osteoporosis,71,male,Frequent joint pain and stiffness.,"Generalized discomfort, Mobility issues, Pain in affected area",
+31,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: The gradual onset of groin pain and restricted hip mobility, combined with high algorithmic probability, points primarily to osteoarthritis, while inflammatory joint conditions and spinal issues remain plausible secondary considerations.",Hip-related disorders,Avascular Necrosis,59,female,Gradual onset of left hip pain with restricted range of motion. Physiotherapy has shown limited improvement.,"Discomfort in groin, Limited mobility, Trouble with weight support, Limited movement",
+32,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: The patient's age, prior hip surgery, and symptoms of localized pain with restricted movement strongly align with degenerative joint changes, while secondary joint inflammation or referred spinal pain remain plausible differentials.",Hip-related disorders,Avascular Necrosis,59,female,Previous surgery on affected hip.,"Pain in hip area, Restricted hip movement, Trouble with weight support, Limited movement",
+33,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Osteoporosis
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: Chronic pain and progressive mobility limitations in an elderly female patient are highly characteristic of age-related degenerative joint and bone conditions, with the reported back or flank discomfort further supporting potential spinal involvement.",Other,Spinal Disorders,73,female,Recurring episodes over the past year.,"Generalized discomfort, Mobility issues, Pain in affected area",
+34,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Avascular Necrosis
+Brief Reason: The patient's age, bilateral hip pain worsened by activity, and restricted movement strongly align with osteoarthritis, while inflammatory joint conditions and avascular necrosis are common differentials for hip pain and weight-bearing difficulty.",Hip-related disorders,Avascular Necrosis,56,female,"The patient reports bilateral hip pain, worsened by physical activity. Physiotherapy and rest were recommended.","Pain in hip area, Restricted hip movement, Trouble with weight support, Limited movement",
+35,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: The patient's advanced age, joint pain, stiffness, and inflammation strongly suggest degenerative joint disease, while the diagnostic interface probabilities further support osteoarthritis, inflammatory arthritis, and spinal degeneration as the most likely conditions.",Musculoskeletal disorders,Osteoarthritis,76,male,Frequent joint pain and stiffness.,"Aching joints, Inflammation around joints, Weakness in muscles, Difficulty in moving freely",
+36,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Inflammatory & Other Joint
+Top-2 Diagnosis: Spinal Disorders
+Top-3 Diagnosis: Osteoarthritis
+Brief Reason: The patient's bilateral hip pain, restricted movement, and buttock aching align with the highest probability interface conditions like hip bursitis and ankylosing spondylitis, followed by radicular and degenerative joint etiologies.",Hip-related disorders,Avascular Necrosis,31,male,"The patient reports bilateral hip pain, worsened by physical activity. Physiotherapy and rest were recommended.","Aching in buttocks, Restricted hip movement, Challenges in walking, Reduced motion range in hip",
+37,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Spinal Disorders
+Top-3 Diagnosis: Osteoporosis
+Brief Reason: The patient's age, chronic recurring pain, and mobility limitations are consistent with degenerative joint or spinal conditions, though clinical evaluation is required for confirmation.",Other,Clinical & Rehab Ops,63,female,Recurring episodes over the past year.,"Generalized discomfort, Mobility issues, Pain in affected area",
+38,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Spinal disorders
+Top-1 Diagnosis: Spinal Disorders
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The combination of lower back and neck pain, limb tingling, and nerve compression strongly indicates a primary spinal etiology, aligning with the high-probability interface results for radiculopathy and degenerative disc disease. Degenerative joint changes and inflammatory processes are also plausible secondary contributors given the chronic stiffness and patient age.",Spinal disorders,Clinical & Rehab Ops,56,male,Regular physiotherapy sessions.,"Lower back pain, Pain in the neck area, Tingling in arms or legs, Fatigue in lower limbs, spinal pain, nerve compression, lumbar stiffness",
+39,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Bone-related disorders
+Top-1 Diagnosis: Osteoporosis
+Top-2 Diagnosis: Fractures
+Top-3 Diagnosis: Osteoarthritis
+Brief Reason: The reported decreased bone density and bone soreness may indicate a primary bone pathology, with fractures and limited mobility serving as common secondary manifestations. This clinical picture aligns most closely with structural or metabolic bone conditions rather than isolated joint or spinal issues.",Bone-related disorders,Fractures,22,male,Recurring episodes over the past year.,"Bone soreness, Signs of fractures, Limited joint mobility, Decreased bone density",
+40,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Spinal Disorders
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Avascular Necrosis
+Brief Reason: Chronic hip stiffness, weight-bearing difficulty, and buttock aching suggest joint or nerve involvement, with the interface highlighting sciatica as a primary possibility. These findings point toward spinal nerve compression, early joint degeneration, or vascular hip pathology.",Hip-related disorders,Avascular Necrosis,32,male,Chronic pain in affected area.,"Aching in buttocks, Hip stiffness, Trouble with weight support, Decreased hip flexibility",
+41,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Bone-related disorders
+Top-1 Diagnosis: Osteoporosis
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: The reported symptoms of bone weakness, soreness, and stiffness, alongside interface probabilities for degenerative joint conditions, most closely align with metabolic bone loss and joint degeneration.",Bone-related disorders,Fractures,45,male,Regular physiotherapy sessions.,"Bone soreness, Weak bones, Stiffness in bones, Weakening bones",
+42,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Spinal disorders
+Top-1 Diagnosis: Spinal Disorders
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Avascular Necrosis
+Brief Reason: The patient's buttock pain, restricted hip mobility, and walking difficulties, combined with the interface's sciatica indication, suggest possible nerve root irritation or spinal pathology. Recurring symptoms in a young adult may also involve joint inflammation or early structural changes, warranting further clinical evaluation.",Hip-related disorders,Osteoarthritis,19,female,Recurring episodes over the past year.,"Aching in buttocks, Restricted hip movement, Challenges in walking, Limited movement",
+43,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Inflammatory & Other Joint
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Osteoporosis
+Brief Reason: The presentation of joint swelling, stiffness, and aching combined with the highest algorithmic probability for rheumatoid arthritis strongly indicates an inflammatory joint condition, while osteoarthritis and osteoporosis are common secondary considerations for this demographic.",Musculoskeletal disorders,Osteoarthritis,47,female,Prior treatment with medication.,"Aching joints, Swelling in joints, Weakness in muscles, Stiffness in movements",
+44,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Inflammatory & Other Joint
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Osteoporosis
+Brief Reason: The reported joint aching, puffiness, and stiffness align with the diagnostic interface's high probability for rheumatoid and psoriatic arthritis, pointing toward an inflammatory joint process. Secondary considerations include degenerative joint changes and bone density concerns common in adults with chronic musculoskeletal complaints.",Musculoskeletal disorders,Osteoarthritis,40,male,Regular physiotherapy sessions.,"Aching joints, Puffiness in joint areas, Muscle tiredness, Difficulty in moving freely",
+45,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Bone-related disorders
+Top-1 Diagnosis: Osteoporosis
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Fractures
+Brief Reason: The patient's age, reported bone thinning, and signs of fractures are highly suggestive of osteoporosis, which also shows the highest probability in the diagnostic output. Osteoarthritis and fractures are included as secondary considerations given the joint stiffness and structural vulnerability.",Bone-related disorders,Fractures,65,male,Frequent joint pain and stiffness.,"Ache in bones, Signs of fractures, Restricted movement, Bone thinning",
+46,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Avascular Necrosis
+Brief Reason: The patient's age, chronic bilateral hip pain, stiffness, and family history strongly suggest a degenerative joint process, making osteoarthritis the primary consideration, while inflammatory arthritis and avascular necrosis remain plausible secondary differentials.",Hip-related disorders,Avascular Necrosis,61,male,Long-standing pain in both hips. Family history of similar conditions reported.,"Pain in hip area, Hip stiffness, Challenges in walking, Decreased hip flexibility",
+47,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Avascular Necrosis
+Brief Reason: The patient's chronic bilateral hip pain, stiffness, and reduced mobility align with the highest algorithmic probability for degenerative joint disease, while inflammatory arthropathies and avascular necrosis remain clinically relevant differentials.",Hip-related disorders,Avascular Necrosis,54,male,Long-standing pain in both hips. Family history of similar conditions reported.,"Pain in hip area, Hip stiffness, Challenges in walking, Limited movement",
+48,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Bone-related disorders
+Top-1 Diagnosis: Osteoporosis
+Top-2 Diagnosis: Fractures
+Top-3 Diagnosis: Osteoarthritis
+Brief Reason: The patient's postmenopausal age, bone tenderness, and reported signs of fractures and bone weakening strongly align with osteoporosis, followed by potential fracture complications and degenerative joint changes.",Bone-related disorders,Fractures,59,female,Frequent joint pain and stiffness.,"Tenderness in bones, Signs of fractures, Restricted movement, Weakening bones",
+49,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Spinal Disorders
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The patient's advanced age, localized hip pain, stiffness, and weight-bearing difficulty strongly suggest degenerative joint changes, consistent with the highest interface probabilities for hip and spinal osteoarthritis.",Hip-related disorders,Osteoarthritis,79,female,Prior treatment with medication.,"Pain in hip area, Hip stiffness, Trouble with weight support, Limited movement",
+50,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Bone-related disorders
+Top-1 Diagnosis: Osteoporosis
+Top-2 Diagnosis: Fractures
+Top-3 Diagnosis: Osteoarthritis
+Brief Reason: The patient's age, postmenopausal status, bone tenderness, and signs of fractures strongly align with osteoporosis, which commonly leads to fragility fractures and secondary joint degeneration.",Bone-related disorders,Fractures,60,female,Previous surgery on affected hip.,"Tenderness in bones, Signs of fractures, Restricted movement, Weakening bones",
+51,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Spinal disorders
+Top-1 Diagnosis: Spinal Disorders
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The presentation of lower back and neck pain with nerve compression, lumbar stiffness, and high algorithmic probabilities for sciatica and degenerative disc disease strongly indicates primary spinal pathology with secondary degenerative joint involvement.",Spinal disorders,Spinal Disorders,56,male,Recurring episodes over the past year.,"Lower back pain, Neck discomfort, Numb feeling in extremities, Fatigue in lower limbs, spinal pain, nerve compression, lumbar stiffness",
+52,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Avascular Necrosis
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The MRI explicitly indicates avascular necrosis in both hips, which directly correlates with the groin discomfort and weight-bearing difficulty, while osteoarthritis and inflammatory joint conditions remain plausible differentials based on the symptom profile and interface probabilities.",Hip-related disorders,Avascular Necrosis,26,female,MRI indicates avascular necrosis in both hips. The patient shows signs of hip stiffness and limited movement.,"Discomfort in groin, Limited mobility, Difficulty bearing weight, Limited movement",
+53,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Avascular Necrosis
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The patient's localized hip pain, stiffness, and weight-bearing difficulty align with degenerative joint changes, while suspected bone marrow edema raises clinical suspicion for avascular necrosis or inflammatory joint pathology.",Hip-related disorders,Avascular Necrosis,53,male,The patient reports swelling and stiffness in the right hip. Bone marrow edema syndrome suspected.,"Pain in hip area, Hip stiffness, Difficulty bearing weight, Reduced motion range in hip",
+54,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Fractures
+Brief Reason: The patient's age, family history, and progressive mobility limitations align with degenerative joint disease, while the diagnostic interface probabilities also indicate potential joint inflammation or acute structural trauma.",Hip-related disorders,Avascular Necrosis,50,female,Family history of hip issues.,"Pain in hip area, Restricted hip movement, Challenges in walking, Decreased hip flexibility",
+55,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Bone-related disorders
+Top-1 Diagnosis: Osteoporosis
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The reported symptoms of bone thinning, weak bones, and tenderness strongly align with osteoporosis, while limited joint mobility and family history of hip issues support osteoarthritis and inflammatory joint conditions as secondary considerations.",Bone-related disorders,Fractures,27,female,Family history of hip issues.,"Tenderness in bones, Weak bones, Limited joint mobility, Bone thinning",
+56,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: Chronic hip pain with restricted movement and weight-bearing difficulty in a middle-aged male strongly suggests degenerative joint changes, while interface probabilities also indicate inflammatory joint conditions and spinal involvement as plausible alternatives.",Hip-related disorders,Avascular Necrosis,54,male,Recurring episodes over the past year.,"Pain in hip area, Restricted hip movement, Trouble with weight support, Limited movement",
+57,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Spinal disorders
+Top-1 Diagnosis: Spinal Disorders
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Osteoporosis
+Brief Reason: The presentation of neck and lumbar pain, stiffness, nerve compression, and lower limb paresthesia in a 65-year-old male strongly indicates degenerative spinal pathology, with osteoarthritis and age-related bone density loss as likely contributing factors.",Spinal disorders,Spinal Disorders,65,male,Family history of hip issues.,"Aching spine, Pain in the neck area, Pins and needles sensation, Fatigue in lower limbs, spinal pain, nerve compression, lumbar stiffness",
+58,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Bone-related disorders
+Top-1 Diagnosis: Osteoporosis
+Top-2 Diagnosis: Fractures
+Top-3 Diagnosis: Osteoarthritis
+Brief Reason: The reported bone thinning, tenderness, and signs of fractures strongly align with osteoporosis, which was also the highest probability match in the diagnostic interface. Fractures and osteoarthritis are included as secondary considerations due to the structural bone vulnerability and reported limited joint mobility.",Bone-related disorders,Osteoporosis,54,male,Recurring episodes over the past year.,"Tenderness in bones, Signs of fractures, Limited joint mobility, Bone thinning",
+59,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Spinal Disorders
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The patient's chronic bilateral hip pain, groin discomfort, stiffness, and weight-bearing difficulty align closely with degenerative joint changes, while the diagnostic interface also indicates notable probabilities for referred spinal nerve pain and inflammatory arthritis.",Hip-related disorders,Avascular Necrosis,32,female,Long-standing pain in both hips. Family history of similar conditions reported.,"Discomfort in groin, Hip stiffness, Difficulty bearing weight, Limited movement",
+60,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Spinal Disorders
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The patient's age, chronic pain, and mobility limitations suggest a degenerative musculoskeletal condition. Osteoarthritis is the most probable cause, followed by potential spinal involvement or other joint inflammation.",Other,Technical & Eng Tasks,56,female,Chronic pain in affected area.,"Generalized discomfort, Mobility issues, Pain in affected area",
+61,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Spinal Disorders
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The patient's age, generalized discomfort, mobility limitations, and reported flank/back pain align with common degenerative or musculoskeletal conditions, making osteoarthritis and spinal involvement the most probable initial considerations.",Other,Spinal Disorders,56,male,No previous medical issues related.,"Generalized discomfort, Mobility issues, Pain in affected area",
+62,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Inflammatory & Other Joint
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Osteoporosis
+Brief Reason: The presentation of joint stiffness, swelling, and muscle weakness in a middle-aged female strongly aligns with inflammatory or degenerative joint pathology, making inflammatory arthritis the primary consideration followed by osteoarthritis and osteoporosis.",Musculoskeletal disorders,Osteoarthritis,44,female,No significant medical history.,"Joint stiffness, Swelling in joints, Weakness in muscles, Difficulty in moving freely",
+63,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Spinal Disorders
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Fractures
+Brief Reason: The patient's report of generalized discomfort, mobility issues, and pain, combined with interface queries regarding flank and back location, points toward a musculoskeletal or spinal origin. Joint inflammation and potential structural injuries remain plausible secondary considerations given the nonspecific symptom profile.",Other,Clinical & Rehab Ops,31,male,No significant medical history.,"Generalized discomfort, Mobility issues, Pain in affected area",
+64,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,,Hip-related disorders,Avascular Necrosis,55,female,MRI indicates avascular necrosis in both hips. The patient shows signs of hip stiffness and limited movement.,"Discomfort in groin, Restricted hip movement, Trouble with weight support, Reduced motion range in hip",Expecting value: line 443 column 1 (char 2431)
+65,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Osteoporosis
+Brief Reason: The patient's age, chronic joint discomfort, puffiness, and reduced mobility align with degenerative joint disease and inflammatory arthritis, while age-related bone density loss remains a relevant secondary consideration.",Musculoskeletal disorders,Osteoarthritis,65,male,Chronic pain in affected area.,"Joint discomfort, Puffiness in joint areas, Fatigue in limbs, Reduced mobility",
+66,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Inflammatory & Other Joint
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Osteoporosis
+Brief Reason: The patient's frequent joint pain, stiffness, and limited mobility, alongside the highest algorithmic probability for juvenile idiopathic arthritis, point primarily to an inflammatory joint process, with degenerative and bone density conditions as secondary considerations.",Bone-related disorders,Fractures,17,female,Frequent joint pain and stiffness.,"Ache in bones, Weak bones, Limited joint mobility, Weakening bones",
+67,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Avascular Necrosis
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: Groin discomfort, restricted joint movement, and weight-bearing difficulty in a young adult male strongly suggest hip joint pathology, with avascular necrosis and early degenerative changes being the most likely considerations.",Hip-related disorders,Avascular Necrosis,33,male,Similar condition diagnosed 1 years ago.,"Discomfort in groin, Limited mobility, Trouble with weight support, Limited movement",
+68,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Spinal disorders
+Top-1 Diagnosis: Spinal Disorders
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Osteoarthritis
+Brief Reason: The patient's buttock aching, reduced hip mobility, and walking challenges align with the highest-probability interface results for sciatica and lumbosacral radiculopathy, indicating spinal nerve involvement. Secondary considerations include inflammatory joint conditions like ankylosing spondylitis or piriformis syndrome, with osteoarthritis as a less likely differential given the patient's young age.",Hip-related disorders,Avascular Necrosis,29,female,No previous medical issues related.,"Aching in buttocks, Limited mobility, Challenges in walking, Reduced motion range in hip",
+69,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Bone-related disorders
+Top-1 Diagnosis: Osteoporosis
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The patient's symptoms of bone aching, weakening, and limited joint mobility, combined with the highest algorithmic probability, strongly point to osteoporosis, with osteoarthritis and inflammatory joint conditions as secondary considerations.",Bone-related disorders,Fractures,58,female,No previous medical issues related.,"Ache in bones, Weak bones, Limited joint mobility, Weakening bones",
+70,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Inflammatory & Other Joint
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: The patient's symptoms of joint aching, puffiness, and stiffness, combined with high predictive probabilities for rheumatoid arthritis and osteoarthritis, point toward a degenerative or inflammatory joint condition.",Musculoskeletal disorders,Osteoarthritis,68,female,Prior treatment with medication.,"Aching joints, Puffiness in joint areas, Muscle tiredness, Stiffness in movements",
+71,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Avascular Necrosis
+Brief Reason: Chronic bilateral hip pain with limited mobility and weight-bearing difficulty in a middle-aged male strongly suggests degenerative joint disease, while the family history and symptom profile make inflammatory arthritis and avascular necrosis reasonable secondary considerations.",Hip-related disorders,Avascular Necrosis,56,male,Long-standing pain in both hips. Family history of similar conditions reported.,"Pain in hip area, Limited mobility, Trouble with weight support, Limited movement",
+72,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: The patient's age, chronic joint aching, inflammation, and restricted movement align with degenerative joint disease, while the interface probabilities highlight osteoarthritis and inflammatory conditions as primary considerations.",Musculoskeletal disorders,Osteoarthritis,65,male,Similar condition diagnosed 2 years ago.,"Aching joints, Inflammation around joints, Weakness in muscles, Difficulty in moving freely",
+73,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Avascular Necrosis
+Top-3 Diagnosis: Fractures
+Brief Reason: Chronic groin discomfort, weight-bearing difficulty, and restricted mobility in a 62-year-old female strongly point to hip joint pathology, with degenerative changes being most common, followed by vascular compromise or structural bone injury.",Hip-related disorders,Osteoarthritis,62,female,Recurring episodes over the past year.,"Discomfort in groin, Limited mobility, Trouble with weight support, Limited movement",
+74,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Spinal Disorders
+Top-3 Diagnosis: Fractures
+Brief Reason: The patient's age, hip stiffness, and weight-bearing difficulty align with degenerative joint changes, while the interface's high probability for sciatica suggests concurrent spinal nerve involvement. Fractures remain a consideration due to acute mobility limitations in an older adult.",Hip-related disorders,Avascular Necrosis,69,male,No significant medical history.,"Aching in buttocks, Limited mobility, Difficulty bearing weight, Decreased hip flexibility",
+75,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Inflammatory & Other Joint
+Top-2 Diagnosis: Avascular Necrosis
+Top-3 Diagnosis: Osteoarthritis
+Brief Reason: The patient's young age, bilateral long-standing hip pain, stiffness, and positive family history point toward a systemic or developmental joint condition rather than acute trauma. These clinical features are most consistent with inflammatory joint pathology, with avascular necrosis and early osteoarthritis as secondary considerations given the weight-bearing difficulty and reduced flexibility.",Hip-related disorders,Avascular Necrosis,24,female,Long-standing pain in both hips. Family history of similar conditions reported.,"Pain in hip area, Hip stiffness, Trouble with weight support, Decreased hip flexibility",
+76,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Spinal Disorders
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: Chronic hip pain with reduced mobility and walking difficulty in a middle-aged male most closely suggests degenerative joint disease, while spinal nerve compression and inflammatory joint conditions remain plausible differentials given the symptom profile and algorithmic probabilities.",Hip-related disorders,Avascular Necrosis,49,male,Chronic pain in affected area.,"Pain in hip area, Limited mobility, Challenges in walking, Decreased hip flexibility",
+77,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Spinal Disorders
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Osteoarthritis
+Brief Reason: The patient's mobility limitations, persistent pain, and physiotherapy history indicate a musculoskeletal etiology, with spinal involvement being the primary consideration given the specific assessment of back and flank discomfort.",Other,Spinal Disorders,44,male,Regular physiotherapy sessions.,"Generalized discomfort, Mobility issues, Pain in affected area",
+78,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: The patient's bilateral hip pain, restricted mobility, and weight-bearing difficulty strongly suggest a degenerative or inflammatory joint process, while the diagnostic interface also indicates potential spinal nerve involvement.",Hip-related disorders,Avascular Necrosis,38,female,Long-standing pain in both hips. Family history of similar conditions reported.,"Pain in hip area, Restricted hip movement, Trouble with weight support, Limited movement",
+79,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Osteoporosis
+Brief Reason: The patient's advanced age, joint stiffness, swelling, and restricted movement strongly suggest degenerative joint disease, while systemic fatigue and swelling also point toward inflammatory joint conditions or age-related bone density changes.",Musculoskeletal disorders,Inflammatory & Other Joint,80,female,No previous medical issues related.,"Joint stiffness, Swelling in joints, Fatigue in limbs, Reduced mobility",
+80,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Spinal Disorders
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The patient's age, chronic bilateral hip pain, stiffness, and reduced range of motion strongly suggest degenerative joint disease, while buttock aching and interface probabilities indicate potential spinal nerve involvement or inflammatory joint conditions.",Hip-related disorders,Avascular Necrosis,61,female,Long-standing pain in both hips. Family history of similar conditions reported.,"Aching in buttocks, Hip stiffness, Trouble with weight support, Reduced motion range in hip",
+81,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Bone-related disorders
+Top-1 Diagnosis: Osteoporosis
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: The patient's advanced age, reported bone weakening, and soreness strongly align with osteoporosis, while limited joint mobility and the diagnostic interface probabilities support osteoarthritis and spinal degeneration as secondary considerations.",Bone-related disorders,Fractures,67,male,Prior treatment with medication.,"Bone soreness, Weak bones, Limited joint mobility, Weakening bones",
+82,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Spinal Disorders
+Top-3 Diagnosis: Osteoporosis
+Brief Reason: The patient's age, gender, and presentation of generalized discomfort with mobility issues and flank/back pain suggest a degenerative or structural condition. Osteoarthritis and spinal involvement are highly prevalent in this demographic, while osteoporosis remains a relevant secondary consideration for age-related musculoskeletal pain.",Other,Clinical & Rehab Ops,50,female,No significant medical history.,"Generalized discomfort, Mobility issues, Pain in affected area",
+83,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Inflammatory & Other Joint
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: The patient's symptoms of joint stiffness, puffiness, and fatigue strongly correlate with inflammatory arthritis, which aligns with the highest probability scores in the diagnostic interface. Age and family history further support osteoarthritis and potential spinal involvement as secondary considerations.",Musculoskeletal disorders,Inflammatory & Other Joint,54,female,Family history of hip issues.,"Joint stiffness, Puffiness in joint areas, Fatigue in limbs, Stiffness in movements",
+84,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Inflammatory & Other Joint
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: The patient's joint inflammation, discomfort, and reduced mobility align with the interface's highest probabilities for rheumatoid arthritis and knee osteoarthritis, while the noted cervical degenerative disc disease supports a broader musculoskeletal etiology.",Musculoskeletal disorders,Osteoarthritis,50,male,Regular physiotherapy sessions.,"Joint discomfort, Inflammation around joints, Muscle tiredness, Reduced mobility",
+85,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Spinal Disorders
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The patient's age, reported joint stiffness, and interface probabilities for knee and spinal degeneration strongly point to osteoarthritis as the primary cause, with secondary spinal and generalized joint involvement as likely contributors.",Other,Inflammatory & Other Joint,58,female,Frequent joint pain and stiffness.,"Generalized discomfort, Mobility issues, Pain in affected area",
+86,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Avascular Necrosis
+Top-2 Diagnosis: Fractures
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The patient's groin discomfort, restricted hip movement, and weight-bearing difficulty in a young male strongly suggest a hip joint pathology, with avascular necrosis being a primary consideration given the age and symptom profile.",Hip-related disorders,Avascular Necrosis,28,male,Prior treatment with medication.,"Discomfort in groin, Restricted hip movement, Trouble with weight support, Decreased hip flexibility",
+87,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Spinal Disorders
+Top-3 Diagnosis: Avascular Necrosis
+Brief Reason: Groin discomfort and difficulty bearing weight strongly indicate hip joint pathology, while the diagnostic interface probability also highlights potential spinal nerve involvement.",Hip-related disorders,Avascular Necrosis,33,female,Regular physiotherapy sessions.,"Discomfort in groin, Limited mobility, Difficulty bearing weight, Limited movement",
+88,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: The patient's age, bilateral hip pain, stiffness, and weight-bearing difficulty strongly suggest degenerative joint disease, while family history and differential probabilities warrant consideration of inflammatory arthritis or referred spinal pathology.",Hip-related disorders,Avascular Necrosis,56,male,Long-standing pain in both hips. Family history of similar conditions reported.,"Pain in hip area, Hip stiffness, Trouble with weight support, Limited movement",
+89,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Bone-related disorders
+Top-1 Diagnosis: Osteoporosis
+Top-2 Diagnosis: Fractures
+Top-3 Diagnosis: Osteoarthritis
+Brief Reason: The patient's age, gender, and symptoms of bone weakening and soreness, combined with the high algorithmic probability, strongly point to osteoporosis, with fractures and age-related joint degeneration as the next most likely considerations.",Bone-related disorders,Fractures,61,female,Similar condition diagnosed 8 years ago.,"Bone soreness, Signs of fractures, Stiffness in bones, Weakening bones",
+90,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Osteoporosis
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: The patient's age, gender, and presentation of generalized discomfort with mobility limitations and localized pain are highly consistent with degenerative musculoskeletal conditions, making osteoarthritis the most probable consideration, followed by age-related bone density changes and potential spinal involvement.",Other,Spinal Disorders,62,female,Prior treatment with medication.,"Generalized discomfort, Mobility issues, Pain in affected area",
+91,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Bone-related disorders
+Top-1 Diagnosis: Osteoporosis
+Top-2 Diagnosis: Fractures
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The reported bone thinning, tenderness, and fracture signs in a 49-year-old female may indicate a primary bone density issue, while limited joint mobility could reflect secondary joint or inflammatory involvement.",Bone-related disorders,Fractures,49,female,Recurring episodes over the past year.,"Tenderness in bones, Signs of fractures, Limited joint mobility, Bone thinning",
+92,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Spinal Disorders
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The patient's advanced age, chronic joint stiffness, and localized hip/buttock symptoms strongly suggest degenerative joint disease, with potential secondary spinal involvement contributing to mobility and walking limitations.",Hip-related disorders,Osteoarthritis,73,male,Frequent joint pain and stiffness.,"Aching in buttocks, Limited mobility, Challenges in walking, Decreased hip flexibility",
+93,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Bone-related disorders
+Top-1 Diagnosis: Osteoporosis
+Top-2 Diagnosis: Fractures
+Top-3 Diagnosis: Osteoarthritis
+Brief Reason: The patient's advanced age, postmenopausal status, and presentation of bone weakening with fracture signs strongly point to osteoporosis, while secondary fractures and age-related joint degeneration remain the most plausible alternatives.",Bone-related disorders,Fractures,73,female,Recurring episodes over the past year.,"Ache in bones, Signs of fractures, Limited joint mobility, Weakening bones",
+94,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Spinal Disorders
+Top-3 Diagnosis: Inflammatory & Other Joint
+Brief Reason: The patient's persistent right hip pain, restricted mobility, and weight-bearing difficulty strongly suggest degenerative joint changes, while radiating buttock discomfort indicates potential spinal nerve involvement or adjacent soft tissue inflammation.",Hip-related disorders,Avascular Necrosis,48,female,"Patient complains of persistent discomfort in the right hip. Movement is limited, and treatment with anti-inflammatory medication is ongoing.","Aching in buttocks, Restricted hip movement, Trouble with weight support, Limited movement",
+95,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Inflammatory & Other Joint
+Top-3 Diagnosis: Clinical & Rehab Ops
+Brief Reason: The patient's age, chronic joint pain, and high interface probabilities strongly suggest osteoarthritis, while post-surgical swelling and recovery fatigue align with inflammatory joint conditions and clinical rehabilitation protocols.",Other,Clinical & Rehab Ops,60,female,Frequent joint pain and stiffness.,"Pain at the surgical site, limited mobility, swelling, and fatigue during recovery.",
+96,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Inflammatory & Other Joint
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: The patient's bilateral hip pain, groin discomfort, and family history strongly suggest an inflammatory or degenerative joint process, with the diagnostic interface highlighting ankylosing spondylitis and hip osteoarthritis as the highest probability conditions.",Hip-related disorders,Avascular Necrosis,36,male,Long-standing pain in both hips. Family history of similar conditions reported.,"Discomfort in groin, Limited mobility, Challenges in walking, Limited movement",
+97,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Inflammatory & Other Joint
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Osteoporosis
+Brief Reason: The combination of joint swelling, aching, and stiffness aligns with inflammatory or degenerative joint conditions, while the patient's age and gender make age-related bone density changes a plausible alternative consideration.",Musculoskeletal disorders,Osteoarthritis,54,female,Prior treatment with medication.,"Aching joints, Swelling in joints, Weakness in muscles, Stiffness in movements",
+98,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Hip-related disorders
+Top-1 Diagnosis: Avascular Necrosis
+Top-2 Diagnosis: Osteoarthritis
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: The provided MRI findings strongly suggest avascular necrosis as the primary cause of hip stiffness and weight-bearing issues. Secondary considerations include age-related osteoarthritis and spinal disorders due to buttock pain and interface probabilities.",Hip-related disorders,Avascular Necrosis,70,male,MRI indicates avascular necrosis in both hips. The patient shows signs of hip stiffness and limited movement.,"Aching in buttocks, Limited mobility, Difficulty bearing weight, Reduced motion range in hip",
+99,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=100;concurrency=10,"Category: Musculoskeletal disorders
+Top-1 Diagnosis: Osteoarthritis
+Top-2 Diagnosis: Osteoporosis
+Top-3 Diagnosis: Spinal Disorders
+Brief Reason: The patient's age, gender, and symptoms of generalized discomfort with mobility issues and localized pain align with common age-related degenerative musculoskeletal conditions, while the interface query regarding back/flank pain further supports a musculoskeletal or spinal etiology.",Other,Technical & Eng Tasks,65,female,Regular physiotherapy sessions.,"Generalized discomfort, Mobility issues, Pain in affected area",

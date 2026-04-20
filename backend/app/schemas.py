@@ -54,6 +54,7 @@ class SessionMessageResponse(BaseModel):
 
 class SessionChoiceResponse(BaseModel):
     choice_id: str
+    question_card: QuestionCard | None = None
 
 
 class SessionDetailResponse(BaseModel):

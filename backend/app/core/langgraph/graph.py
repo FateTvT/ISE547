@@ -53,7 +53,7 @@ class GraphState(TypedDict, total=False):
     question_card: dict[str, Any]
     has_kb_question: bool
     selected_kb_choice: str
-    user_choice_history: list[dict[str, str]]
+    user_choice_history: list[dict[str, Any]]
     user_wants_final_result: bool
 
 
@@ -167,15 +167,37 @@ class SimpleLangGraphAgent:
 
     @staticmethod
     def _append_user_choice_history(
-        *, state: GraphState, selected_choice: str
-    ) -> list[dict[str, str]]:
-        """Append one user choice to persistent choice history."""
+        *,
+        state: GraphState,
+        selected_choice: str,
+        question_card: dict[str, Any] | None = None,
+    ) -> list[dict[str, Any]]:
+        """Append one user choice and question snapshot to history."""
 
         history = state.get("user_choice_history", [])
         if not isinstance(history, list):
             history = []
-        entry = {"choice_id": selected_choice}
+        entry: dict[str, Any] = {"choice_id": selected_choice}
+        normalized_question_card = (
+            SimpleLangGraphAgent._normalize_question_card_payload(question_card)
+        )
+        if normalized_question_card is not None:
+            entry["question_card"] = normalized_question_card
         return [*history, entry]
+
+    @staticmethod
+    def _normalize_question_card_payload(
+        question_card: Any,
+    ) -> dict[str, Any] | None:
+        """Validate and normalize a question card payload."""
+
+        if not isinstance(question_card, dict):
+            return None
+        try:
+            return QuestionCard.model_validate(question_card).model_dump()
+        except Exception:
+            logger.exception("Invalid question card payload in choice history.")
+            return None
 
     @staticmethod
     def _is_group_single_question(question: InfermedicaQuestion) -> bool:
@@ -485,6 +507,7 @@ class SimpleLangGraphAgent:
             "user_choice_history": self._append_user_choice_history(
                 state=state,
                 selected_choice=resolved_choice,
+                question_card=question_card,
             ),
         }
 
@@ -824,7 +847,7 @@ class SimpleLangGraphAgent:
             return []
         return [message for message in messages if isinstance(message, BaseMessage)]
 
-    async def get_user_choice_history(self, session_id: str) -> list[dict[str, str]]:
+    async def get_user_choice_history(self, session_id: str) -> list[dict[str, Any]]:
         """Get persisted user choice history by thread ID."""
 
         graph = await self._get_graph()
@@ -835,14 +858,20 @@ class SimpleLangGraphAgent:
         if not isinstance(choice_history, list):
             return []
 
-        normalized: list[dict[str, str]] = []
+        normalized: list[dict[str, Any]] = []
         for item in choice_history:
             if not isinstance(item, dict):
                 continue
             choice_id = item.get("choice_id")
             if not isinstance(choice_id, str) or not choice_id.strip():
                 continue
-            normalized.append({"choice_id": choice_id.strip()})
+            normalized_item: dict[str, Any] = {"choice_id": choice_id.strip()}
+            question_card = self._normalize_question_card_payload(
+                item.get("question_card")
+            )
+            if question_card is not None:
+                normalized_item["question_card"] = question_card
+            normalized.append(normalized_item)
         return normalized
 
     async def close(self) -> None:

@@ -159,7 +159,7 @@ async def get_langgraph_session_history(session_id: str) -> list[dict[str, str]]
 
 async def get_langgraph_session_user_choices(
     session_id: str,
-) -> list[dict[str, str]]:
+) -> list[dict[str, object]]:
     """Get persisted user choice history for one session/thread."""
 
     return await langgraph_agent.get_user_choice_history(session_id=session_id)
