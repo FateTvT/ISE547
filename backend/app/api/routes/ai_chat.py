@@ -4,10 +4,11 @@ from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.sse import EventSourceResponse
+from sqlalchemy import text
 from sqlmodel import Session, select
 
 from app.api.deps.auth import get_verified_session
-from app.core.db import get_session
+from app.core.db import get_session as get_db_session
 from app.models.session import Session as ChatSession
 from app.schemas import (
     AIChatRequest,
@@ -27,6 +28,28 @@ router = APIRouter()
 logger = logging.getLogger("uvicorn.error")
 
 
+def _delete_langgraph_thread_state(db: Session, session_id: str) -> None:
+    """Delete persisted LangGraph thread state for one session ID."""
+
+    if not db.bind or not str(db.bind.url).startswith("sqlite"):
+        return
+
+    table_rows = db.exec(
+        text(
+            "SELECT name FROM sqlite_master "
+            "WHERE type='table' AND name IN ('checkpoints', 'writes')"
+        )
+    ).all()
+    existing_tables = {str(row[0]) for row in table_rows if row and row[0]}
+    for table_name in ("writes", "checkpoints"):
+        if table_name not in existing_tables:
+            continue
+        db.exec(
+            text(f"DELETE FROM {table_name} WHERE thread_id = :session_id"),
+            {"session_id": session_id},
+        )
+
+
 @router.get("/mock", response_class=EventSourceResponse)
 async def mock_sse_stream():
     async for event in stream_mock_chat():
@@ -37,7 +60,7 @@ async def mock_sse_stream():
 async def stream_chat(
     request: AIChatRequest,
     verified_user: UserResponse = Depends(get_verified_session),
-    db: Session = Depends(get_session),
+    db: Session = Depends(get_db_session),
 ):
     resolved_session_id = request.session_id or str(uuid4())
     logger.info(
@@ -110,7 +133,7 @@ async def stream_chat(
 @router.get("/sessions", response_model=list[SessionResponse])
 async def list_sessions(
     verified_user: UserResponse = Depends(get_verified_session),
-    db: Session = Depends(get_session),
+    db: Session = Depends(get_db_session),
 ) -> list[SessionResponse]:
     rows = db.exec(
         select(ChatSession)
@@ -124,7 +147,7 @@ async def list_sessions(
 async def get_session(
     session_id: str,
     verified_user: UserResponse = Depends(get_verified_session),
-    db: Session = Depends(get_session),
+    db: Session = Depends(get_db_session),
 ) -> SessionDetailResponse:
     row = db.get(ChatSession, session_id)
     if row is None:
@@ -146,3 +169,26 @@ async def get_session(
         messages=history,
         user_choices=user_choices,
     )
+
+
+@router.delete("/sessions/{session_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_session(
+    session_id: str,
+    verified_user: UserResponse = Depends(get_verified_session),
+    db: Session = Depends(get_db_session),
+) -> None:
+    row = db.get(ChatSession, session_id)
+    if row is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Session not found",
+        )
+    if row.user_id != verified_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Session does not belong to current user",
+        )
+
+    db.delete(row)
+    _delete_langgraph_thread_state(db, session_id)
+    db.commit()
