@@ -17,6 +17,7 @@ from langchain_openai import ChatOpenAI
 
 SCRIPT_DIR = Path(__file__).parent
 BACKEND_DIR = SCRIPT_DIR.parent
+PROMPTS_DIR = BACKEND_DIR / "app" / "core" / "prompts"
 DATA_PATH = Path("data/updated_result_with_BERT_eval_120_cleaned_cleaned.csv")
 TARGET_COLUMN = "Diagnosis Category"
 FEATURE_COLUMNS = [
@@ -54,43 +55,36 @@ ALLOWED_DIAGNOSIS_CHOICES = [
     "x-ray diagnosis",
 ]
 LLM_PROMPT_TEMPLATE = """
-You are a medical triage assistant for an academic evaluation project.
-
-Your task is to read the user's symptom description and provide an initial triage-oriented response.
-This is NOT a real medical diagnosis and you must not claim certainty.
-
-Based only on the information provided, return:
-1) the single most appropriate diagnosis category,
-2) the three most likely candidate diagnoses ranked from most likely to less likely.
-
-You must always provide an answer even if the information is incomplete.
+{prompt_content}
 
 Hard constraints:
 - Category MUST be selected from this list only: {allowed_categories}
 - Top-1/Top-2/Top-3 Diagnosis MUST each be selected from this list only: {allowed_diagnoses}
 - Do not output values outside these two lists.
 
-Keep your answer concise and structured exactly in this format:
-
-Category: <one diagnosis category>
-Top-1 Diagnosis: <one diagnosis>
-Top-2 Diagnosis: <one diagnosis>
-Top-3 Diagnosis: <one diagnosis>
-Brief Reason: <1-2 sentences>
-
-Output rules:
-- Return plain text only.
-- Exactly 5 lines, in the exact order above.
-- Do not add bullets, markdown, code blocks, or extra notes.
-- Each line must start with the exact field name shown above.
-
-User information:
-Age: {age}
-Gender: {gender}
-Patient History: {patient_history}
-Symptoms: {symptoms}
+Auxiliary context from diagnosis interface:
 Diagnosis Interface Result (JSON): {diagnosis_result}
 """.strip()
+
+PROMPT_FILE_MAP = {
+    "p1": "P1_Direct.txt",
+    "p2": "P2_Structured.txt",
+    "p3": "P3_Conservative.txt",
+    "p4": "P4_CategoryFirst.txt",
+}
+
+
+def load_prompt_content(prompt_key: str) -> str:
+    prompt_filename = PROMPT_FILE_MAP[prompt_key]
+    prompt_path = PROMPTS_DIR / prompt_filename
+    return prompt_path.read_text(encoding="utf-8").strip()
+
+
+def render_prompt_content(prompt_template: str, template_vars: dict[str, str]) -> str:
+    rendered = prompt_template
+    for key, value in template_vars.items():
+        rendered = rendered.replace(f"{{{key}}}", value)
+    return rendered
 
 
 def _ensure_backend_on_path() -> Path:
@@ -198,20 +192,29 @@ async def call_diagnosis(
 
 def build_llm_user_prompt(
     *,
+    prompt_content: str,
     age: int,
     gender: str,
     symptoms: str,
     patient_history: str,
     diagnosis_payload: dict[str, Any],
 ) -> str:
+    template_vars = {
+        "age": str(age),
+        "gender": str(gender),
+        "patient_history": str(patient_history),
+        "symptoms": str(symptoms),
+        "diagnosis_result": json.dumps(diagnosis_payload, ensure_ascii=False),
+        "allowed_categories": "; ".join(ALLOWED_CATEGORY_CHOICES),
+        "allowed_diagnoses": "; ".join(ALLOWED_DIAGNOSIS_CHOICES),
+    }
+    rendered_prompt_content = render_prompt_content(prompt_content, template_vars)
+
     return LLM_PROMPT_TEMPLATE.format(
-        age=age,
-        gender=gender,
-        patient_history=patient_history,
-        symptoms=symptoms,
-        diagnosis_result=json.dumps(diagnosis_payload, ensure_ascii=False),
-        allowed_categories="; ".join(ALLOWED_CATEGORY_CHOICES),
-        allowed_diagnoses="; ".join(ALLOWED_DIAGNOSIS_CHOICES),
+        prompt_content=rendered_prompt_content,
+        diagnosis_result=template_vars["diagnosis_result"],
+        allowed_categories=template_vars["allowed_categories"],
+        allowed_diagnoses=template_vars["allowed_diagnoses"],
     )
 
 
@@ -243,6 +246,70 @@ def _first_two_sentences(text: str) -> str:
     return " ".join(sentences[:2]).strip()
 
 
+def _extract_json_object_text(text: str) -> str:
+    start = text.find("{")
+    if start < 0:
+        return ""
+
+    brace_count = 0
+    in_string = False
+    escape = False
+    for idx in range(start, len(text)):
+        char = text[idx]
+        if in_string:
+            if escape:
+                escape = False
+            elif char == "\\":
+                escape = True
+            elif char == '"':
+                in_string = False
+            continue
+        if char == '"':
+            in_string = True
+            continue
+        if char == "{":
+            brace_count += 1
+            continue
+        if char == "}":
+            brace_count -= 1
+            if brace_count == 0:
+                return text[start : idx + 1]
+    return ""
+
+
+def _parse_llm_json(raw_output: str) -> dict[str, Any]:
+    stripped = raw_output.strip()
+    if stripped.startswith("```"):
+        fence_match = re.search(
+            r"(?is)^```(?:json)?\s*(.*?)\s*```$",
+            stripped,
+        )
+        if fence_match:
+            stripped = fence_match.group(1).strip()
+
+    for candidate in (stripped, _extract_json_object_text(stripped)):
+        if not candidate:
+            continue
+        try:
+            parsed = json.loads(candidate)
+            if isinstance(parsed, dict):
+                return parsed
+        except json.JSONDecodeError:
+            continue
+    return {}
+
+
+def _json_value_as_text(payload: dict[str, Any], keys: list[str]) -> str:
+    for key in keys:
+        value = payload.get(key)
+        if value is None:
+            continue
+        text = str(value).strip()
+        if text:
+            return text
+    return ""
+
+
 def _conditions_from_diagnosis(
     diagnosis_payload: dict[str, Any],
 ) -> list[dict[str, Any]]:
@@ -265,12 +332,32 @@ def _pick_allowed_value(value: str, allowed_values: list[str]) -> str:
 
 def format_triage_output(raw_output: str, diagnosis_payload: dict[str, Any]) -> str:
     conditions = _conditions_from_diagnosis(diagnosis_payload)
+    parsed_json = _parse_llm_json(raw_output)
 
-    category = _extract_field(raw_output, "Category")
-    top1 = _extract_field(raw_output, "Top-1 Diagnosis")
-    top2 = _extract_field(raw_output, "Top-2 Diagnosis")
-    top3 = _extract_field(raw_output, "Top-3 Diagnosis")
-    brief_reason = _extract_field(raw_output, "Brief Reason")
+    if parsed_json:
+        category = _json_value_as_text(parsed_json, ["category", "Category"])
+        top1 = _json_value_as_text(
+            parsed_json,
+            ["diagnosis_top1", "top1", "Top-1 Diagnosis"],
+        )
+        top2 = _json_value_as_text(
+            parsed_json,
+            ["diagnosis_top2", "top2", "Top-2 Diagnosis"],
+        )
+        top3 = _json_value_as_text(
+            parsed_json,
+            ["diagnosis_top3", "top3", "Top-3 Diagnosis"],
+        )
+        brief_reason = _json_value_as_text(
+            parsed_json,
+            ["brief_reason", "Brief Reason"],
+        )
+    else:
+        category = _extract_field(raw_output, "Category")
+        top1 = _extract_field(raw_output, "Top-1 Diagnosis")
+        top2 = _extract_field(raw_output, "Top-2 Diagnosis")
+        top3 = _extract_field(raw_output, "Top-3 Diagnosis")
+        brief_reason = _extract_field(raw_output, "Brief Reason")
 
     condition_names = [
         str(item.get("name", "")).strip()
@@ -285,11 +372,7 @@ def format_triage_output(raw_output: str, diagnosis_payload: dict[str, Any]) -> 
         )
         if mapped
     ]
-    default_diagnosis = ALLOWED_DIAGNOSIS_CHOICES[0]
-    top_fallbacks = (
-        allowed_condition_names
-        + [default_diagnosis, default_diagnosis, default_diagnosis]
-    )[:3]
+    top_fallbacks = (allowed_condition_names + condition_names + ["", "", ""])[:3]
 
     if not category:
         first_category = ""
@@ -300,11 +383,20 @@ def format_triage_output(raw_output: str, diagnosis_payload: dict[str, Any]) -> 
         category = first_category
 
     mapped_category = _pick_allowed_value(category, ALLOWED_CATEGORY_CHOICES)
-    category = mapped_category or ALLOWED_CATEGORY_CHOICES[0]
+    category = mapped_category or category or "Unknown"
 
-    top1 = _pick_allowed_value(top1, ALLOWED_DIAGNOSIS_CHOICES) or top_fallbacks[0]
-    top2 = _pick_allowed_value(top2, ALLOWED_DIAGNOSIS_CHOICES) or top_fallbacks[1]
-    top3 = _pick_allowed_value(top3, ALLOWED_DIAGNOSIS_CHOICES) or top_fallbacks[2]
+    top1 = (
+        _pick_allowed_value(top1, ALLOWED_DIAGNOSIS_CHOICES) or top1 or top_fallbacks[0]
+    )
+    top2 = (
+        _pick_allowed_value(top2, ALLOWED_DIAGNOSIS_CHOICES) or top2 or top_fallbacks[1]
+    )
+    top3 = (
+        _pick_allowed_value(top3, ALLOWED_DIAGNOSIS_CHOICES) or top3 or top_fallbacks[2]
+    )
+    top1 = top1 or "Unknown"
+    top2 = top2 or "Unknown"
+    top3 = top3 or "Unknown"
 
     brief_reason = _first_two_sentences(brief_reason)
     if not brief_reason:
@@ -325,6 +417,7 @@ def format_triage_output(raw_output: str, diagnosis_payload: dict[str, Any]) -> 
 async def run_llm_diagnosis(
     llm: ChatOpenAI,
     *,
+    prompt_content: str,
     age: int,
     gender: str,
     symptoms: str,
@@ -332,6 +425,7 @@ async def run_llm_diagnosis(
     diagnosis_payload: dict[str, Any],
 ) -> str:
     user_prompt = build_llm_user_prompt(
+        prompt_content=prompt_content,
         age=age,
         gender=gender,
         symptoms=symptoms,
@@ -353,6 +447,7 @@ async def process_row(
     client: httpx.AsyncClient,
     llm: ChatOpenAI,
     semaphore: asyncio.Semaphore,
+    prompt_content: str,
     prompt_id: str,
     run_mode: str,
 ) -> dict[str, Any]:
@@ -388,6 +483,7 @@ async def process_row(
 
             llm_final_output = await run_llm_diagnosis(
                 llm,
+                prompt_content=prompt_content,
                 age=age,
                 gender=sex,
                 symptoms=symptoms,
@@ -445,10 +541,17 @@ def parse_args() -> argparse.Namespace:
         help="Input CSV path.",
     )
     parser.add_argument(
+        "--p",
+        type=str,
+        choices=tuple(PROMPT_FILE_MAP.keys()),
+        default="p2",
+        help="Prompt profile: p1, p2, p3, or p4.",
+    )
+    parser.add_argument(
         "--output",
         type=Path,
         default=None,
-        help="Output CSV path. Default: data/eval_agent_top{top_n}_results.csv",
+        help="Output CSV path. Default: data/eval_agent_{p}_top{top_n}_results.csv",
     )
     return parser.parse_args()
 
@@ -469,10 +572,11 @@ async def run() -> None:
     input_path = _resolve_script_relative_path(args.input)
     df = pd.read_csv(input_path)
     sample_df = df[FEATURE_COLUMNS + [TARGET_COLUMN]].head(args.top_n).copy()
+    prompt_content = load_prompt_content(args.p)
     llm = create_llm()
     semaphore = asyncio.Semaphore(args.concurrency)
-    prompt_id = "medical_triage_v1"
-    run_mode = f"top_n={args.top_n};concurrency={args.concurrency}"
+    prompt_id = f"medical_triage_{args.p}"
+    run_mode = f"top_n={args.top_n};concurrency={args.concurrency};p={args.p}"
 
     timeout = httpx.Timeout(60.0)
     async with httpx.AsyncClient(timeout=timeout) as client:
@@ -483,6 +587,7 @@ async def run() -> None:
                 client=client,
                 llm=llm,
                 semaphore=semaphore,
+                prompt_content=prompt_content,
                 prompt_id=prompt_id,
                 run_mode=run_mode,
             )
@@ -511,7 +616,7 @@ async def run() -> None:
     ]
 
     output_rel_path = args.output or Path(
-        f"data/eval_agent_top{args.top_n}_results.csv"
+        f"data/eval_agent_{args.p}_top{args.top_n}_results.csv"
     )
     output_path = _resolve_script_relative_path(output_rel_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
