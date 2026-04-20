@@ -33,9 +33,9 @@ export function QuestionCard({
           minWidth: '220px',
           padding: '12px 16px',
           borderRadius: '12px',
-          background: 'rgba(214, 158, 46, 0.18)',
-          border: '1px solid rgba(214, 158, 46, 0.55)',
-          color: '#fff',
+          background: '#EEF2FF',
+          border: '1px solid #B9C7EA',
+          color: '#1E2A4A',
         }}
       >
         <div style={{ fontSize: '12px', opacity: 0.75, marginBottom: '6px' }}>Question</div>
@@ -52,12 +52,12 @@ export function QuestionCard({
                 padding: '10px 12px',
                 borderRadius: '8px',
                 background: choice.selected
-                  ? 'rgba(49, 130, 206, 0.35)'
-                  : 'rgba(255, 255, 255, 0.08)',
+                  ? 'rgba(18, 46, 138, 0.16)'
+                  : '#FFFFFF',
                 border: choice.selected
-                  ? '1px solid rgba(99, 179, 237, 0.9)'
-                  : '1px solid rgba(255, 255, 255, 0.16)',
-                color: '#fff',
+                  ? '1px solid #122E8A'
+                  : '1px solid #C9D3EA',
+                color: '#1E2A4A',
                 cursor: loading || readOnly ? 'not-allowed' : 'pointer',
                 opacity: loading || readOnly ? 0.7 : 1,
               }}
@@ -77,7 +77,7 @@ export function QuestionCard({
               padding: '10px 12px',
               borderRadius: '8px',
               border: 'none',
-              background: !selectedChoice || loading ? 'rgba(49, 130, 206, 0.45)' : '#3182ce',
+              background: !selectedChoice || loading ? '#A6B3DA' : '#122E8A',
               color: '#fff',
               cursor: !selectedChoice || loading ? 'not-allowed' : 'pointer',
               fontWeight: 600,

@@ -283,6 +283,36 @@ export type ListSessionsApiV1AiChatSessionsGetResponses = {
 
 export type ListSessionsApiV1AiChatSessionsGetResponse = ListSessionsApiV1AiChatSessionsGetResponses[keyof ListSessionsApiV1AiChatSessionsGetResponses];
 
+export type DeleteSessionApiV1AiChatSessionsSessionIdDeleteData = {
+    body?: never;
+    path: {
+        /**
+         * Session Id
+         */
+        session_id: string;
+    };
+    query?: never;
+    url: '/api/v1/ai-chat/sessions/{session_id}';
+};
+
+export type DeleteSessionApiV1AiChatSessionsSessionIdDeleteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteSessionApiV1AiChatSessionsSessionIdDeleteError = DeleteSessionApiV1AiChatSessionsSessionIdDeleteErrors[keyof DeleteSessionApiV1AiChatSessionsSessionIdDeleteErrors];
+
+export type DeleteSessionApiV1AiChatSessionsSessionIdDeleteResponses = {
+    /**
+     * Successful Response
+     */
+    204: void;
+};
+
+export type DeleteSessionApiV1AiChatSessionsSessionIdDeleteResponse = DeleteSessionApiV1AiChatSessionsSessionIdDeleteResponses[keyof DeleteSessionApiV1AiChatSessionsSessionIdDeleteResponses];
+
 export type GetSessionApiV1AiChatSessionsSessionIdGetData = {
     body?: never;
     path: {

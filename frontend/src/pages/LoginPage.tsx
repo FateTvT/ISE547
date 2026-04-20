@@ -9,6 +9,14 @@ import {
 } from '../service/auth.api'
 
 export default function LoginPage() {
+  const appBackground = '#F5EFEA'
+  const surfaceColor = '#FFFFFF'
+  const primaryColor = '#122E8A'
+  const primaryHover = '#0E246D'
+  const textPrimary = '#1E2A4A'
+  const textMuted = '#5B678A'
+  const borderColor = '#C9D3EA'
+
   const navigate = useNavigate()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -58,23 +66,23 @@ export default function LoginPage() {
       style={{
         minHeight: '100vh',
         padding: '32px 16px',
-        background: '#171923',
+        background: appBackground,
       }}
     >
       <div
         style={{
           maxWidth: '560px',
           margin: '0 auto',
-          background: '#1f2937',
+          background: surfaceColor,
           borderRadius: '16px',
           padding: '24px',
-          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.25)',
+          boxShadow: '0 8px 30px rgba(18, 46, 138, 0.12)',
         }}
       >
-        <Text fontSize="3xl" fontWeight="bold" color="white">
+        <Text fontSize="3xl" fontWeight="bold" color={primaryColor}>
           Login
         </Text>
-        <Text color="gray.300" mt={2}>
+        <Text color={textMuted} mt={2}>
           Sign in to access AI chat.
         </Text>
 
@@ -89,10 +97,10 @@ export default function LoginPage() {
             value={username}
             onChange={(event) => setUsername(event.target.value)}
             placeholder="Username"
-            color="white"
-            bg="rgba(255, 255, 255, 0.04)"
-            borderColor="rgba(255, 255, 255, 0.24)"
-            _placeholder={{ color: 'gray.400' }}
+            color={textPrimary}
+            bg={surfaceColor}
+            borderColor={borderColor}
+            _placeholder={{ color: textMuted }}
             disabled={authLoading || Boolean(currentUser)}
           />
           <Input
@@ -100,10 +108,10 @@ export default function LoginPage() {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder="Password"
-            color="white"
-            bg="rgba(255, 255, 255, 0.04)"
-            borderColor="rgba(255, 255, 255, 0.24)"
-            _placeholder={{ color: 'gray.400' }}
+            color={textPrimary}
+            bg={surfaceColor}
+            borderColor={borderColor}
+            _placeholder={{ color: textMuted }}
             disabled={authLoading || Boolean(currentUser)}
             onKeyDown={(event) => {
               if (event.key === 'Enter') {
@@ -112,9 +120,9 @@ export default function LoginPage() {
             }}
           />
           <Button
-            bg="#14b8a6"
+            bg={primaryColor}
             color="white"
-            _hover={{ bg: '#0f9f90' }}
+            _hover={{ bg: primaryHover }}
             onClick={() => void handleLogin()}
             loading={authLoading}
             disabled={Boolean(currentUser)}
@@ -124,7 +132,7 @@ export default function LoginPage() {
         </div>
 
         {authError && (
-          <Text color="red.300" mt={3}>
+          <Text color="#C53030" mt={3}>
             Auth error: {authError}
           </Text>
         )}

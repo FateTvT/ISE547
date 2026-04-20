@@ -13,6 +13,7 @@ import {
 } from '../components/chat/SessionSidebar'
 import { clearAccessToken, fetchCurrentUser, type CurrentUser } from '../service/auth.api'
 import {
+  deleteSession,
   fetchSessionDetail,
   fetchSessions,
   type PatientSex,
@@ -21,6 +22,15 @@ import type { AiChatQuestionCard } from '../schema/ai_chat_stream.schema'
 
 const MIN_ALLOWED_AGE = 18
 const MAX_ALLOWED_AGE = 80
+const APP_BACKGROUND = '#F5EFEA'
+const PRIMARY_COLOR = '#122E8A'
+const PRIMARY_HOVER = '#0E246D'
+const SECONDARY_COLOR = '#5A6FB2'
+const TEXT_PRIMARY = '#1E2A4A'
+const TEXT_MUTED = '#5B678A'
+const BORDER_COLOR = '#C9D3EA'
+const SURFACE_COLOR = '#FFFFFF'
+const SURFACE_TINT = '#EEF2FF'
 const AGE_OPTIONS = Array.from(
   { length: MAX_ALLOWED_AGE - MIN_ALLOWED_AGE + 1 },
   (_, index) => String(MIN_ALLOWED_AGE + index),
@@ -114,9 +124,11 @@ export default function HomePage() {
   const [sessionChoiceHistory, setSessionChoiceHistory] = useState<UserChoiceHistoryItem[]>([])
   const [sessions, setSessions] = useState<ChatSessionItem[]>([])
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null)
+  const [deletingSessionId, setDeletingSessionId] = useState<string | null>(null)
   const [prompt, setPrompt] = useState('')
   const [ageInput, setAgeInput] = useState('')
   const [sex, setSex] = useState<PatientSex | ''>('')
+  const [demographicsSubmitted, setDemographicsSubmitted] = useState(false)
   const {
     loading,
     err,
@@ -234,7 +246,14 @@ export default function HomePage() {
     Number.isFinite(parsedAge) &&
     parsedAge >= MIN_ALLOWED_AGE &&
     parsedAge <= MAX_ALLOWED_AGE
-  const demographicsReady = hasValidAge
+  const demographicsReady = hasValidAge && demographicsSubmitted
+
+  const handleDemographicsSubmit = () => {
+    if (!hasValidAge) {
+      return
+    }
+    setDemographicsSubmitted(true)
+  }
 
   const handleSend = async () => {
     if (!demographicsReady) {
@@ -251,7 +270,43 @@ export default function HomePage() {
     setSessionChoiceHistory([])
     replaceMessages([])
     setPrompt('')
+    setAgeInput('')
+    setSex('')
+    setDemographicsSubmitted(false)
     setSessionId(createLocalSessionId())
+  }
+
+  const handleDeleteSession = async (sessionId: string) => {
+    if (deletingSessionId || sessionsLoading) {
+      return
+    }
+    const targetSession = sessions.find((session) => session.id === sessionId)
+    const firstConfirm = window.confirm(
+      `Delete "${targetSession?.name || 'this thread'}"?`,
+    )
+    if (!firstConfirm) {
+      return
+    }
+    const secondConfirm = window.confirm(
+      'This action cannot be undone. Confirm delete?',
+    )
+    if (!secondConfirm) {
+      return
+    }
+
+    setDeletingSessionId(sessionId)
+    const deleted = await deleteSession(sessionId)
+    if (!deleted) {
+      setSessionDetailError('Failed to delete this thread.')
+      setDeletingSessionId(null)
+      return
+    }
+
+    setSessions((prev) => prev.filter((session) => session.id !== sessionId))
+    if (selectedSessionId === sessionId) {
+      handleNewDiagnosis()
+    }
+    setDeletingSessionId(null)
   }
 
   if (authChecking) {
@@ -262,10 +317,10 @@ export default function HomePage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#171923',
+          background: APP_BACKGROUND,
         }}
       >
-        <Text color="gray.300">Checking your session...</Text>
+        <Text color={TEXT_PRIMARY}>Checking your session...</Text>
       </div>
     )
   }
@@ -275,7 +330,7 @@ export default function HomePage() {
       style={{
         height: '100dvh',
         padding: '32px 16px',
-        background: '#171923',
+        background: APP_BACKGROUND,
         overflow: 'hidden',
       }}
     >
@@ -283,10 +338,10 @@ export default function HomePage() {
         style={{
           maxWidth: '1120px',
           margin: '0 auto',
-          background: '#1f2937',
+          background: SURFACE_COLOR,
           borderRadius: '16px',
           padding: '24px',
-          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.25)',
+          boxShadow: '0 8px 30px rgba(18, 46, 138, 0.12)',
           height: 'calc(100dvh - 64px)',
           overflow: 'hidden',
         }}
@@ -304,30 +359,32 @@ export default function HomePage() {
             sessions={sessions}
             selectedSessionId={selectedSessionId}
             loading={sessionsLoading}
+            deletingSessionId={deletingSessionId}
             onSelect={(sessionId) => void handleSelectSession(sessionId)}
+            onDelete={(sessionId) => void handleDeleteSession(sessionId)}
             onRefresh={() => void loadSessions()}
             onLogout={handleLogout}
           />
           <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-            <Text fontSize="3xl" fontWeight="bold" color="white">
+            <Text fontSize="3xl" fontWeight="bold" color={PRIMARY_COLOR}>
               ISE 547 Project
             </Text>
-            <Text color="gray.500" mt={1} fontSize="xs">
+            <Text color={TEXT_MUTED} mt={1} fontSize="xs">
               Select a session on the left to load its history.
             </Text>
 
             {err && (
-              <Text color="red.300" mt={4}>
+              <Text color="#C53030" mt={4}>
                 Error: {err}
               </Text>
             )}
             {sessionDetailError && (
-              <Text color="red.300" mt={2}>
+              <Text color="#C53030" mt={2}>
                 {sessionDetailError}
               </Text>
             )}
             {sessionDetailLoading && (
-              <Text color="gray.300" mt={2}>
+              <Text color={TEXT_MUTED} mt={2}>
                 Loading thread history...
               </Text>
             )}
@@ -360,12 +417,12 @@ export default function HomePage() {
                     style={{
                       width: 'min(560px, 100%)',
                       borderRadius: '12px',
-                      border: '1px solid rgba(255, 255, 255, 0.12)',
-                      background: 'rgba(255, 255, 255, 0.03)',
+                      border: `1px solid ${BORDER_COLOR}`,
+                      background: SURFACE_TINT,
                       padding: '18px',
                     }}
                   >
-                    <Text color="gray.100" fontSize="sm" fontWeight="semibold">
+                    <Text color={TEXT_PRIMARY} fontSize="sm" fontWeight="semibold">
                       Please enter your age to get the most accurate diagnosis. Your privacy is our
                       top priority.
                     </Text>
@@ -380,14 +437,17 @@ export default function HomePage() {
                     >
                       <select
                         value={ageInput}
-                        onChange={(event) => setAgeInput(event.target.value)}
+                        onChange={(event) => {
+                          setAgeInput(event.target.value)
+                          setDemographicsSubmitted(false)
+                        }}
                         style={{
                           height: '40px',
                           minWidth: '190px',
                           borderRadius: '6px',
-                          border: '1px solid rgba(255, 255, 255, 0.24)',
-                          background: 'rgba(255, 255, 255, 0.04)',
-                          color: 'white',
+                          border: `1px solid ${BORDER_COLOR}`,
+                          background: SURFACE_COLOR,
+                          color: TEXT_PRIMARY,
                           padding: '0 10px',
                         }}
                       >
@@ -402,14 +462,17 @@ export default function HomePage() {
                       </select>
                       <select
                         value={sex}
-                        onChange={(event) => setSex(event.target.value as PatientSex | '')}
+                        onChange={(event) => {
+                          setSex(event.target.value as PatientSex | '')
+                          setDemographicsSubmitted(false)
+                        }}
                         style={{
                           height: '40px',
                           minWidth: '190px',
                           borderRadius: '6px',
-                          border: '1px solid rgba(255, 255, 255, 0.24)',
-                          background: 'rgba(255, 255, 255, 0.04)',
-                          color: 'white',
+                          border: `1px solid ${BORDER_COLOR}`,
+                          background: SURFACE_COLOR,
+                          color: TEXT_PRIMARY,
                           padding: '0 10px',
                         }}
                       >
@@ -426,10 +489,26 @@ export default function HomePage() {
                           Prefer not to say
                         </option>
                       </select>
+                      <Button
+                        size="sm"
+                        bg={PRIMARY_COLOR}
+                        color="white"
+                        _hover={{ bg: PRIMARY_HOVER }}
+                        _disabled={{
+                          bg: '#A6B3DA',
+                          color: '#EAEFFB',
+                        }}
+                        onClick={handleDemographicsSubmit}
+                        disabled={!hasValidAge}
+                      >
+                        Submit
+                      </Button>
                     </div>
                     {!demographicsReady && (
-                      <Text color="orange.200" fontSize="xs" mt={2}>
-                        Please select your age before typing.
+                      <Text color="#8A6400" fontSize="xs" mt={2}>
+                        {hasValidAge
+                          ? 'Please click submit before typing.'
+                          : 'Please select your age before typing.'}
                       </Text>
                     )}
                   </div>
@@ -449,7 +528,7 @@ export default function HomePage() {
                 gap: '12px',
                 marginTop: '12px',
                 paddingTop: '12px',
-                borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                borderTop: `1px solid ${BORDER_COLOR}`,
                 flexShrink: 0,
               }}
             >
@@ -457,10 +536,10 @@ export default function HomePage() {
                 value={prompt}
                 onChange={(event) => setPrompt(event.target.value)}
                 placeholder="Ask something..."
-                color="white"
-                bg="rgba(255, 255, 255, 0.04)"
-                borderColor="rgba(255, 255, 255, 0.24)"
-                _placeholder={{ color: 'gray.400' }}
+                color={TEXT_PRIMARY}
+                bg={SURFACE_COLOR}
+                borderColor={BORDER_COLOR}
+                _placeholder={{ color: TEXT_MUTED }}
                 disabled={loading || inputBlocked || !demographicsReady}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter') {
@@ -469,9 +548,9 @@ export default function HomePage() {
                 }}
               />
               <Button
-                bg="#3182ce"
+                bg={PRIMARY_COLOR}
                 color="white"
-                _hover={{ bg: '#2b6cb0' }}
+                _hover={{ bg: PRIMARY_HOVER }}
                 onClick={() => void handleSend()}
                 loading={loading}
                 disabled={inputBlocked || !demographicsReady || !prompt.trim()}
@@ -480,22 +559,22 @@ export default function HomePage() {
               </Button>
               <Button
                 variant="outline"
-                color="white"
-                borderColor="rgba(255, 255, 255, 0.32)"
+                color={SECONDARY_COLOR}
+                borderColor={SECONDARY_COLOR}
                 onClick={handleNewDiagnosis}
-                bg="rgba(255, 255, 255, 0.10)"
-                _hover={{ bg: 'rgba(255, 255, 255, 0.16)' }}
+                bg="#E8EDFB"
+                _hover={{ bg: '#DCE4F9' }}
               >
                 New Diagnosis
               </Button>
               <Button
                 variant="outline"
-                color="white"
-                borderColor="rgba(255, 255, 255, 0.32)"
+                color={SECONDARY_COLOR}
+                borderColor={SECONDARY_COLOR}
                 onClick={stopStream}
                 disabled={!loading}
-                bg="rgba(255, 255, 255, 0.10)"
-                _hover={{ bg: 'rgba(255, 255, 255, 0.16)' }}
+                bg="#E8EDFB"
+                _hover={{ bg: '#DCE4F9' }}
               >
                 Stop
               </Button>

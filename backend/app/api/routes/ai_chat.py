@@ -18,6 +18,7 @@ from app.schemas import (
     UserResponse,
 )
 from app.service.chat_service import (
+    build_session_name,
     get_langgraph_session_history,
     get_langgraph_session_user_choices,
     stream_langgraph_chat,
@@ -44,7 +45,7 @@ def _delete_langgraph_thread_state(db: Session, session_id: str) -> None:
     for table_name in ("writes", "checkpoints"):
         if table_name not in existing_tables:
             continue
-        db.exec(
+        db.execute(
             text(f"DELETE FROM {table_name} WHERE thread_id = :session_id"),
             {"session_id": session_id},
         )
@@ -83,7 +84,7 @@ async def stream_chat(
             ChatSession(
                 id=resolved_session_id,
                 user_id=verified_user.id,
-                name=(request.message or "").strip()[:50],
+                name=build_session_name(age=request.age, sex=request.sex),
                 username=verified_user.username,
             )
         )

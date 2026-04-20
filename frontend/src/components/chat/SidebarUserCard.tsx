@@ -7,22 +7,27 @@ type SidebarUserCardProps = {
 }
 
 export function SidebarUserCard({ user, onLogout }: SidebarUserCardProps) {
+  const primaryColor = '#122E8A'
+  const secondaryColor = '#5A6FB2'
+  const textPrimary = '#1E2A4A'
+  const textMuted = '#5B678A'
+
   return (
     <div
       style={{
-        border: '1px solid rgba(255, 255, 255, 0.14)',
+        border: '1px solid #C9D3EA',
         borderRadius: '12px',
         padding: '12px',
-        background: 'rgba(255, 255, 255, 0.03)',
+        background: '#F8FAFF',
       }}
     >
-      <Text color="gray.300" fontSize="xs">
+      <Text color={textMuted} fontSize="xs">
         Current User
       </Text>
-      <Text color="white" fontWeight="bold" mt={1}>
+      <Text color={textPrimary} fontWeight="bold" mt={1}>
         {user?.username ?? 'Unknown user'}
       </Text>
-      <Text color="gray.400" fontSize="xs" mt={1}>
+      <Text color={textMuted} fontSize="xs" mt={1}>
         {user?.email ?? '-'}
       </Text>
       <Button
@@ -30,10 +35,10 @@ export function SidebarUserCard({ user, onLogout }: SidebarUserCardProps) {
         size="sm"
         width="100%"
         onClick={onLogout}
-        bg="rgba(255, 255, 255, 0.10)"
+        bg={primaryColor}
         color="white"
-        border="1px solid rgba(255, 255, 255, 0.25)"
-        _hover={{ bg: 'rgba(255, 255, 255, 0.16)' }}
+        border={`1px solid ${primaryColor}`}
+        _hover={{ bg: '#0E246D' }}
       >
         Logout
       </Button>

@@ -41,6 +41,16 @@ MOCK_RESPONSE_CHUNKS = [
 ]
 
 
+def build_session_name(age: int, sex: str) -> str:
+    """Build a default session name from patient demographics."""
+
+    if sex == "male":
+        return f"{age}岁的男性患者"
+    if sex == "female":
+        return f"{age}岁的女性患者"
+    return f"{age}岁的患者"
+
+
 async def stream_mock_chat() -> AsyncIterator[dict[str, str]]:
     """Stream mock chunks for frontend debugging."""
 

@@ -23,9 +23,10 @@ export function StreamReplyBox({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          border: '1px dashed rgba(255, 255, 255, 0.2)',
+          border: '1px dashed #B6C3E4',
           borderRadius: '12px',
-          color: '#cbd5e1',
+          color: '#5B678A',
+          background: '#F8FAFF',
         }}
       >
         No messages yet. Send one to start.

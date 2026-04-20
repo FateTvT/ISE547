@@ -1,4 +1,5 @@
 import {
+  deleteSessionApiV1AiChatSessionsSessionIdDelete,
   getSessionApiV1AiChatSessionsSessionIdGet,
   listSessionsApiV1AiChatSessionsGet,
   streamChatApiV1AiChatStreamPost,
@@ -214,4 +215,11 @@ export async function fetchSessionDetail(
     return null;
   }
   return result.data;
+}
+
+export async function deleteSession(sessionId: string): Promise<boolean> {
+  const result = await deleteSessionApiV1AiChatSessionsSessionIdDelete({
+    path: { session_id: sessionId },
+  });
+  return !result.error;
 }

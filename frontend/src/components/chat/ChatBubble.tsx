@@ -10,11 +10,12 @@ export function ChatBubble({ role, content }: ChatBubbleProps) {
   const isUser = role === 'user'
   const isInterrupt = role === 'interrupt'
   const bubbleBackground = isUser
-    ? '#3182ce'
+    ? '#122E8A'
     : isInterrupt
-      ? 'rgba(214, 158, 46, 0.18)'
-      : 'rgba(255, 255, 255, 0.08)'
+      ? '#E7EDFF'
+      : '#F8FAFF'
   const title = isUser ? 'You' : isInterrupt ? 'Interrupt' : 'AI'
+  const bubbleTextColor = isUser ? '#fff' : '#1E2A4A'
 
   return (
     <div
@@ -31,8 +32,8 @@ export function ChatBubble({ role, content }: ChatBubbleProps) {
           padding: '12px 16px',
           borderRadius: '12px',
           background: bubbleBackground,
-          color: '#fff',
-          border: isInterrupt ? '1px solid rgba(214, 158, 46, 0.55)' : 'none',
+          color: bubbleTextColor,
+          border: isInterrupt ? '1px solid #A7B8E8' : '1px solid #D8E0F4',
           minHeight: '48px',
           wordBreak: 'break-word',
           overflowWrap: 'anywhere',
@@ -77,7 +78,7 @@ export function ChatBubble({ role, content }: ChatBubbleProps) {
                   style={{
                     margin: '6px 0',
                     paddingLeft: '10px',
-                    borderLeft: '3px solid rgba(255, 255, 255, 0.3)',
+                    borderLeft: isUser ? '3px solid rgba(255, 255, 255, 0.4)' : '3px solid #AFC0EE',
                   }}
                 >
                   {children}
@@ -87,7 +88,7 @@ export function ChatBubble({ role, content }: ChatBubbleProps) {
                 <hr
                   style={{
                     border: 'none',
-                    borderTop: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderTop: isUser ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid #C7D4EF',
                     margin: '8px 0',
                   }}
                 />
@@ -101,7 +102,7 @@ export function ChatBubble({ role, content }: ChatBubbleProps) {
                     margin: '6px 0',
                     padding: '8px',
                     borderRadius: '8px',
-                    background: 'rgba(0, 0, 0, 0.2)',
+                    background: isUser ? 'rgba(0, 0, 0, 0.22)' : '#EDF2FF',
                     overflowX: 'auto',
                   }}
                 >

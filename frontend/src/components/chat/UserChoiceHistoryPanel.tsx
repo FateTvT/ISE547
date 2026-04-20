@@ -18,15 +18,15 @@ export function UserChoiceHistoryPanel({ items }: UserChoiceHistoryPanelProps) {
     <details
       style={{
         marginTop: '10px',
-        background: 'rgba(255, 255, 255, 0.04)',
-        border: '1px solid rgba(255, 255, 255, 0.12)',
+        background: '#F8FAFF',
+        border: '1px solid #C9D3EA',
         borderRadius: '10px',
         padding: '10px 12px',
       }}
     >
       <summary
         style={{
-          color: '#cbd5e1',
+          color: '#5B678A',
           fontSize: '13px',
           cursor: 'pointer',
           userSelect: 'none',
@@ -53,11 +53,11 @@ export function UserChoiceHistoryPanel({ items }: UserChoiceHistoryPanelProps) {
               key={`${item.choice_id}-${index}`}
               style={{
                 borderRadius: '8px',
-                background: 'rgba(15, 23, 42, 0.55)',
+                background: '#EEF2FF',
                 padding: '10px',
               }}
             >
-              <div style={{ color: '#e2e8f0', fontSize: '13px', fontWeight: 600 }}>
+              <div style={{ color: '#1E2A4A', fontSize: '13px', fontWeight: 600 }}>
                 Q{index + 1}: {questionCard?.question ?? 'Question unavailable'}
               </div>
               {questionCard ? (
@@ -68,7 +68,7 @@ export function UserChoiceHistoryPanel({ items }: UserChoiceHistoryPanelProps) {
                       <div
                         key={choice.choice_id}
                         style={{
-                          color: isSelected ? '#90cdf4' : '#cbd5e1',
+                          color: isSelected ? '#122E8A' : '#5B678A',
                           fontSize: '12px',
                         }}
                       >
@@ -79,12 +79,12 @@ export function UserChoiceHistoryPanel({ items }: UserChoiceHistoryPanelProps) {
                   })}
                 </div>
               ) : (
-                <div style={{ marginTop: '8px', color: '#94a3b8', fontSize: '12px' }}>
+                <div style={{ marginTop: '8px', color: '#7A86A8', fontSize: '12px' }}>
                   Choice details unavailable; recorded choice_id: {item.choice_id}
                 </div>
               )}
               {selectedChoice && (
-                <div style={{ marginTop: '8px', color: '#90cdf4', fontSize: '12px' }}>
+                <div style={{ marginTop: '8px', color: '#122E8A', fontSize: '12px' }}>
                   Selected: {selectedChoice.choice}
                 </div>
               )}
