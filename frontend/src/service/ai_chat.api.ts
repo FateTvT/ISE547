@@ -7,6 +7,7 @@ import {
 import type { SessionDetailResponse, SessionResponse } from '../client/types.gen';
 import {
   AI_CHAT_STREAM_EVENT,
+  type AiChatDiagnosisDownEventPayload,
   type AiChatErrorEventPayload,
   type AiChatInterruptEventPayload,
   type AiChatQuestionChoice,
@@ -18,6 +19,7 @@ import {
 export type MockStreamMessage = AiChatMessageEventPayload;
 export type MockStreamError = AiChatErrorEventPayload;
 export type MockStreamInterrupt = AiChatInterruptEventPayload;
+export type MockDiagnosisDown = AiChatDiagnosisDownEventPayload;
 export type PatientSex = 'male' | 'female' | 'undefine';
 
 export type ParsedStreamEvent =
@@ -32,6 +34,10 @@ export type ParsedStreamEvent =
   | {
       type: typeof AI_CHAT_STREAM_EVENT.INTERRUPT;
       payload: MockStreamInterrupt;
+    }
+  | {
+      type: typeof AI_CHAT_STREAM_EVENT.DIAGNOSIS_DOWN;
+      payload: MockDiagnosisDown;
     };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -42,7 +48,8 @@ function isEventType(value: unknown): value is AiChatStreamEventType {
   return (
     value === AI_CHAT_STREAM_EVENT.MESSAGE ||
     value === AI_CHAT_STREAM_EVENT.ERROR ||
-    value === AI_CHAT_STREAM_EVENT.INTERRUPT
+    value === AI_CHAT_STREAM_EVENT.INTERRUPT ||
+    value === AI_CHAT_STREAM_EVENT.DIAGNOSIS_DOWN
   );
 }
 
@@ -72,6 +79,13 @@ function isMockStreamInterrupt(value: unknown): value is MockStreamInterrupt {
     Array.isArray(value.question_choices) &&
     value.question_choices.every(isQuestionChoice)
   );
+}
+
+function isDiagnosisDown(value: unknown): value is MockDiagnosisDown {
+  if (!isRecord(value)) {
+    return false;
+  }
+  return typeof value.diagnosis_completed === 'boolean';
 }
 
 function isQuestionChoice(value: unknown): value is AiChatQuestionChoice {
@@ -158,6 +172,19 @@ export function parseStreamEventChunk(chunk: unknown): ParsedStreamEvent | null 
         };
       }
       return null;
+    }
+
+    if (eventType === AI_CHAT_STREAM_EVENT.DIAGNOSIS_DOWN) {
+      if (isDiagnosisDown(parsedData)) {
+        return {
+          type: AI_CHAT_STREAM_EVENT.DIAGNOSIS_DOWN,
+          payload: parsedData,
+        };
+      }
+      return {
+        type: AI_CHAT_STREAM_EVENT.DIAGNOSIS_DOWN,
+        payload: { diagnosis_completed: true },
+      };
     }
 
     return parseStreamEventChunk(parsedData);

@@ -25,6 +25,7 @@ type UseAiChatResult = {
   loading: boolean;
   err: string | null;
   inputBlocked: boolean;
+  diagnosisCompleted: boolean;
   messages: ChatMessage[];
   sendMessage: (prompt: string, age: number, sex: PatientSex) => Promise<void>;
   submitSelectedQuestionChoice: (messageId: string) => Promise<void>;
@@ -38,6 +39,7 @@ export function useAiChat(): UseAiChatResult {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [diagnosisCompleted, setDiagnosisCompleted] = useState(false);
   const [pendingInterruptMessageId, setPendingInterruptMessageId] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const sessionIdRef = useRef(`session-${Date.now()}`);
@@ -60,6 +62,7 @@ export function useAiChat(): UseAiChatResult {
 
   const replaceMessages = useCallback((nextMessages: ChatMessage[]) => {
     setMessages(nextMessages);
+    setDiagnosisCompleted(false);
     setPendingInterruptMessageId(null);
     setErr(null);
   }, []);
@@ -102,6 +105,7 @@ export function useAiChat(): UseAiChatResult {
 
       setErr(null);
       setLoading(true);
+      setDiagnosisCompleted(false);
       const userMessageId = `user-${Date.now()}`;
       const assistantMessageId = `assistant-${Date.now()}`;
       setMessages((prev) => [
@@ -147,6 +151,12 @@ export function useAiChat(): UseAiChatResult {
               },
             ]);
             setPendingInterruptMessageId(interruptMessageId);
+            continue;
+          }
+
+          if (parsed.type === AI_CHAT_STREAM_EVENT.DIAGNOSIS_DOWN) {
+            setDiagnosisCompleted(parsed.payload.diagnosis_completed);
+            setPendingInterruptMessageId(null);
             continue;
           }
 
@@ -228,6 +238,7 @@ export function useAiChat(): UseAiChatResult {
 
       setErr(null);
       setLoading(true);
+      setDiagnosisCompleted(false);
       const assistantMessageId = `assistant-resume-${Date.now()}`;
 
       try {
@@ -261,6 +272,12 @@ export function useAiChat(): UseAiChatResult {
               },
             ]);
             setPendingInterruptMessageId(interruptMessageId);
+            continue;
+          }
+
+          if (parsed.type === AI_CHAT_STREAM_EVENT.DIAGNOSIS_DOWN) {
+            setDiagnosisCompleted(parsed.payload.diagnosis_completed);
+            setPendingInterruptMessageId(null);
             continue;
           }
 
@@ -313,6 +330,7 @@ export function useAiChat(): UseAiChatResult {
     loading,
     err,
     inputBlocked,
+    diagnosisCompleted,
     messages,
     sendMessage,
     submitSelectedQuestionChoice,

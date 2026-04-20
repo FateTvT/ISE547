@@ -7,6 +7,7 @@ class AIChatStreamEventType(str, Enum):
     MESSAGE = "message"
     ERROR = "error"
     INTERRUPT = "interrupt"
+    DIAGNOSIS_DOWN = "diagnosis_down"
 
 
 class HelloResponse(BaseModel):

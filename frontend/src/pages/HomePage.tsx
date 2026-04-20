@@ -148,6 +148,7 @@ export default function HomePage() {
     loading,
     err,
     inputBlocked,
+    diagnosisCompleted: liveDiagnosisCompleted,
     messages,
     sendMessage,
     submitSelectedQuestionChoice,
@@ -281,7 +282,7 @@ export default function HomePage() {
     parsedAge >= MIN_ALLOWED_AGE &&
     parsedAge <= MAX_ALLOWED_AGE
   const demographicsReady = hasValidAge && demographicsSubmitted
-  const selectedSessionCompleted = selectedSessionId !== null && diagnosisCompleted
+  const selectedSessionCompleted = diagnosisCompleted || liveDiagnosisCompleted
   const selectedSessionPendingChoice =
     selectedSessionId !== null && pendingUserChoice !== null
   const demographicsSummary = `Age: ${hasValidAge ? ageInput : 'Not set'} | Sex: ${formatSexLabel(sex)}`

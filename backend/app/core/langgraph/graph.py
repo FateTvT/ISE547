@@ -812,6 +812,7 @@ class SimpleLangGraphAgent:
             }
 
         chunk_emitted = False
+        diagnosis_down_emitted = False
         async for chunk in graph.astream(
             graph_input,
             config=config,
@@ -842,6 +843,18 @@ class SimpleLangGraphAgent:
             updates = chunk.get("data")
             if not isinstance(updates, dict):
                 continue
+
+            if not diagnosis_down_emitted:
+                for node_update in updates.values():
+                    if not isinstance(node_update, dict):
+                        continue
+                    if bool(node_update.get("diagnosis_completed", False)):
+                        diagnosis_down_emitted = True
+                        yield {
+                            "event": "diagnosis_down",
+                            "payload": {"diagnosis_completed": True},
+                        }
+                        break
 
             if not chunk_emitted:
                 for node_update in updates.values():

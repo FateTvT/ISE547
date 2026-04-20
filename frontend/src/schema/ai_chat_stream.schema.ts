@@ -2,6 +2,7 @@ export const AI_CHAT_STREAM_EVENT = {
   MESSAGE: 'message',
   ERROR: 'error',
   INTERRUPT: 'interrupt',
+  DIAGNOSIS_DOWN: 'diagnosis_down',
 } as const;
 
 export type AiChatStreamEventType =
@@ -28,3 +29,7 @@ export type AiChatQuestionChoice = {
 }
 
 export type AiChatInterruptEventPayload = AiChatQuestionCard
+
+export type AiChatDiagnosisDownEventPayload = {
+  diagnosis_completed: boolean
+}

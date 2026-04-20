@@ -136,6 +136,16 @@ async def stream_langgraph_chat(
                 "id": "interrupt-1",
                 "data": json.dumps(payload, ensure_ascii=False),
             }
+            continue
+
+        if event_name == AIChatStreamEventType.DIAGNOSIS_DOWN.value:
+            if not isinstance(payload, dict):
+                payload = {"diagnosis_completed": True}
+            yield {
+                "event": AIChatStreamEventType.DIAGNOSIS_DOWN.value,
+                "id": "diagnosis-down",
+                "data": json.dumps(payload, ensure_ascii=False),
+            }
     logger.info("stream_langgraph_chat end: session_id=%s chunks=%s", session_id, index)
 
 
