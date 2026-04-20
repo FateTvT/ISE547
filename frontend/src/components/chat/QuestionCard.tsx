@@ -83,7 +83,7 @@ export function QuestionCard({
               fontWeight: 600,
             }}
           >
-            提交
+            Submit
           </button>
         )}
       </div>

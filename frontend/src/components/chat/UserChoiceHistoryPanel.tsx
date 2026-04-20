@@ -33,7 +33,7 @@ export function UserChoiceHistoryPanel({ items }: UserChoiceHistoryPanelProps) {
           fontWeight: 600,
         }}
       >
-        查看用户选择历史（{items.length}）
+        View user choice history ({items.length})
       </summary>
       <div
         style={{
@@ -80,12 +80,12 @@ export function UserChoiceHistoryPanel({ items }: UserChoiceHistoryPanelProps) {
                 </div>
               ) : (
                 <div style={{ marginTop: '8px', color: '#94a3b8', fontSize: '12px' }}>
-                  选项详情缺失，已记录 choice_id: {item.choice_id}
+                  Choice details unavailable; recorded choice_id: {item.choice_id}
                 </div>
               )}
               {selectedChoice && (
                 <div style={{ marginTop: '8px', color: '#90cdf4', fontSize: '12px' }}>
-                  已选: {selectedChoice.choice}
+                  Selected: {selectedChoice.choice}
                 </div>
               )}
             </div>

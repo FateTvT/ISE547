@@ -26,6 +26,10 @@ const AGE_OPTIONS = Array.from(
   (_, index) => String(MIN_ALLOWED_AGE + index),
 )
 
+function createLocalSessionId(): string {
+  return `session-${Date.now()}`
+}
+
 function isHistoryQuestionCard(value: unknown): value is AiChatQuestionCard {
   if (!value || typeof value !== 'object') {
     return false
@@ -237,6 +241,17 @@ export default function HomePage() {
       return
     }
     await sendMessage(prompt, parsedAge, (sex || 'undefine') as PatientSex)
+  }
+
+  const handleNewDiagnosis = () => {
+    stopStream()
+    setSelectedSessionId(null)
+    setSessionDetailLoading(false)
+    setSessionDetailError(null)
+    setSessionChoiceHistory([])
+    replaceMessages([])
+    setPrompt('')
+    setSessionId(createLocalSessionId())
   }
 
   if (authChecking) {
@@ -462,6 +477,16 @@ export default function HomePage() {
                 disabled={inputBlocked || !demographicsReady || !prompt.trim()}
               >
                 Send
+              </Button>
+              <Button
+                variant="outline"
+                color="white"
+                borderColor="rgba(255, 255, 255, 0.32)"
+                onClick={handleNewDiagnosis}
+                bg="rgba(255, 255, 255, 0.10)"
+                _hover={{ bg: 'rgba(255, 255, 255, 0.16)' }}
+              >
+                New Diagnosis
               </Button>
               <Button
                 variant="outline"
