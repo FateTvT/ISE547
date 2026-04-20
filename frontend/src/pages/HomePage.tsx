@@ -40,6 +40,19 @@ function createLocalSessionId(): string {
   return `session-${Date.now()}`
 }
 
+function formatSexLabel(value: PatientSex | ''): string {
+  if (value === 'male') {
+    return 'Male'
+  }
+  if (value === 'female') {
+    return 'Female'
+  }
+  if (value === 'undefine') {
+    return 'Prefer not to say'
+  }
+  return 'Not set'
+}
+
 function isHistoryQuestionCard(value: unknown): value is AiChatQuestionCard {
   if (!value || typeof value !== 'object') {
     return false
@@ -247,6 +260,7 @@ export default function HomePage() {
     parsedAge >= MIN_ALLOWED_AGE &&
     parsedAge <= MAX_ALLOWED_AGE
   const demographicsReady = hasValidAge && demographicsSubmitted
+  const demographicsSummary = `Age: ${hasValidAge ? ageInput : 'Not set'} | Sex: ${formatSexLabel(sex)}`
 
   const handleDemographicsSubmit = () => {
     if (!hasValidAge) {
@@ -372,6 +386,24 @@ export default function HomePage() {
             <Text color={TEXT_MUTED} mt={1} fontSize="xs">
               Select a session on the left to load its history.
             </Text>
+            {demographicsSubmitted && (
+              <div
+                style={{
+                  marginTop: '10px',
+                  borderRadius: '10px',
+                  border: `1px solid ${BORDER_COLOR}`,
+                  background: '#F8FAFF',
+                  padding: '8px 12px',
+                }}
+              >
+                <Text color={TEXT_PRIMARY} fontSize="xs" fontWeight="semibold">
+                  Current selection
+                </Text>
+                <Text color={TEXT_MUTED} fontSize="xs" mt={1}>
+                  {demographicsSummary}
+                </Text>
+              </div>
+            )}
 
             {err && (
               <Text color="#C53030" mt={4}>

@@ -45,10 +45,10 @@ def build_session_name(age: int, sex: str) -> str:
     """Build a default session name from patient demographics."""
 
     if sex == "male":
-        return f"{age}岁的男性患者"
+        return f"{age}-year-old male patient"
     if sex == "female":
-        return f"{age}岁的女性患者"
-    return f"{age}岁的患者"
+        return f"{age}-year-old female patient"
+    return f"{age}-year-old patient"
 
 
 async def stream_mock_chat() -> AsyncIterator[dict[str, str]]:

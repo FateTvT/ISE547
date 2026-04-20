@@ -36,11 +36,15 @@ export function UserChoiceHistoryPanel({ items }: UserChoiceHistoryPanelProps) {
         View user choice history ({items.length})
       </summary>
       <div
+        className="custom-scrollbar"
         style={{
           marginTop: '10px',
           display: 'flex',
           flexDirection: 'column',
           gap: '10px',
+          maxHeight: '220px',
+          overflowY: 'auto',
+          paddingRight: '4px',
         }}
       >
         {items.map((item, index) => {
