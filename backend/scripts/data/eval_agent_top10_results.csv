@@ -1,0 +1,51 @@
+﻿case_id,system_type,system_name,prompt_id,run_mode,raw_output,gold_category,gold_diagnosis,age,gender,patient_history,symptoms,error
+0,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=10;concurrency=10,"Category: Spinal Disorders
+Top-1 Diagnosis: Sciatica
+Top-2 Diagnosis: Lumbosacral radiculopathy
+Top-3 Diagnosis: Degenerative disc disease of the cervical spine
+Brief Reason: The reported lower back pain, extremity numbness, and nerve compression symptoms strongly suggest spinal nerve root involvement. The provided clinical interface probabilities further prioritize radicular and degenerative spinal conditions as the most likely considerations.",Spinal disorders,spinal tumors,53,male,Regular physiotherapy sessions.,"Lower back pain, Stiff neck, Numb feeling in extremities, Fatigue in lower limbs, spinal pain, nerve compression, lumbar stiffness",
+1,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=10;concurrency=10,"Category: Rheumatologic
+Top-1 Diagnosis: Rheumatoid arthritis
+Top-2 Diagnosis: Shoulder impingement syndrome
+Top-3 Diagnosis: Psoriatic arthritis
+Brief Reason: The combination of joint aching, swelling, stiffness, and fatigue in a middle-aged female is characteristic of inflammatory arthritis, and the provided algorithmic probabilities support rheumatoid arthritis as the leading consideration, followed by shoulder impingement syndrome and psoriatic arthritis.",Musculoskeletal disorders,osteoarthritis,45,female,Similar condition diagnosed 4 years ago.,"Aching joints, Puffiness in joint areas, Muscle tiredness, Stiffness in movements",
+2,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=10;concurrency=10,"Category: General Pain and Discomfort
+Top-1 Diagnosis: Common cold
+Top-2 Diagnosis: Upper limb pain, unspecified
+Top-3 Diagnosis: Lower limb pain, unspecified
+Brief Reason: The diagnostic interface assigns the highest probabilities to these conditions based on the reported symptoms, though further clinical assessment is necessary to determine the exact cause.",Other,cobb angle estimation,56,female,No significant medical history.,"Generalized discomfort, Mobility issues, Pain in affected area",
+3,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=10;concurrency=10,"Category: Musculoskeletal
+Top-1 Diagnosis: Hip osteoarthritis
+Top-2 Diagnosis: Piriformis syndrome
+Top-3 Diagnosis: Hip bursitis
+Brief Reason: The reported activity-related bilateral hip pain, groin discomfort, and restricted mobility align with mechanical joint or periarticular conditions, and the provided diagnostic interface assigns the highest probability to hip osteoarthritis followed by piriformis syndrome and hip bursitis.",Hip-related disorders,Avascular Necrosis of Bilateral Hips,26,female,"The patient reports bilateral hip pain, worsened by physical activity. Physiotherapy and rest were recommended.","Discomfort in groin, Limited mobility, Challenges in walking, Reduced motion range in hip",
+4,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=10;concurrency=10,"Category: Musculoskeletal
+Top-1 Diagnosis: Avascular necrosis of the hip
+Top-2 Diagnosis: Hip osteoarthritis
+Top-3 Diagnosis: Degenerative joint disease
+Brief Reason: The explicit MRI finding of bilateral hip avascular necrosis combined with groin pain, stiffness, and weight-bearing difficulty strongly indicates a primary hip joint pathology. Age-related degenerative changes or secondary osteoarthritis are highly consistent with the clinical presentation.",Hip-related disorders,Avascular Necrosis of Bilateral Hips,70,female,MRI indicates avascular necrosis in both hips. The patient shows signs of hip stiffness and limited movement.,"Discomfort in groin, Hip stiffness, Trouble with weight support, Reduced motion range in hip",
+5,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=10;concurrency=10,"Category: Musculoskeletal
+Top-1 Diagnosis: Hip osteoarthritis
+Top-2 Diagnosis: Avascular necrosis of the femoral head
+Top-3 Diagnosis: Lumbar radiculopathy
+Brief Reason: Chronic groin discomfort with restricted hip mobility and gait impairment in a 60-year-old male strongly points to degenerative intra-articular hip pathology, with spinal or vascular etiologies as secondary considerations.",Hip-related disorders,Avascular Necrosis of the Right Hip,60,male,Chronic pain in affected area.,"Discomfort in groin, Restricted hip movement, Challenges in walking, Limited movement",
+6,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=10;concurrency=10,"Category: Musculoskeletal disorder
+Top-1 Diagnosis: Rheumatoid arthritis
+Top-2 Diagnosis: Shoulder impingement syndrome
+Top-3 Diagnosis: Psoriatic arthritis
+Brief Reason: The symptom profile of chronic joint pain, swelling, stiffness, and muscle weakness aligns with common inflammatory and mechanical joint conditions. The provided interface probabilities rank rheumatoid arthritis highest, followed by shoulder impingement syndrome and psoriatic arthritis.",Musculoskeletal disorders,osteoarthritis,56,female,Chronic pain in affected area.,"Aching joints, Puffiness in joint areas, Weakness in muscles, Stiffness in movements",
+7,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=10;concurrency=10,"Category: Musculoskeletal
+Top-1 Diagnosis: Hip osteoarthritis
+Top-2 Diagnosis: Sciatica
+Top-3 Diagnosis: Ankylosing spondylitis
+Brief Reason: The patient's age, activity-worsened bilateral hip pain, groin discomfort, and stiffness strongly align with degenerative joint disease, supported by the highest algorithmic probability. Sciatica and ankylosing spondylitis are considered secondary possibilities due to overlapping pain and mobility symptoms, though clinical correlation is required.",Hip-related disorders,Avascular Necrosis of Bilateral Hips,62,male,"The patient reports bilateral hip pain, worsened by physical activity. Physiotherapy and rest were recommended.","Discomfort in groin, Hip stiffness, Difficulty bearing weight, Limited movement",
+8,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=10;concurrency=10,"Category: Musculoskeletal
+Top-1 Diagnosis: Hip dislocation
+Top-2 Diagnosis: Sciatica
+Top-3 Diagnosis: Sprained hip
+Brief Reason: The diagnostic interface assigns the highest probabilities to these conditions, and the patient's groin discomfort, restricted mobility, and weight-bearing difficulty align with acute or structural hip pathology.",Hip-related disorders,Avascular Necrosis of Bilateral Hips,52,female,"The patient reports bilateral hip pain, worsened by physical activity. Physiotherapy and rest were recommended.","Discomfort in groin, Restricted hip movement, Trouble with weight support, Decreased hip flexibility",
+9,llm_triage,qwen/qwen3.6-plus,medical_triage_v1,top_n=10;concurrency=10,"Category: Musculoskeletal
+Top-1 Diagnosis: Rotator cuff syndrome
+Top-2 Diagnosis: Rheumatoid arthritis
+Top-3 Diagnosis: Knee osteoarthritis
+Brief Reason: The patient's age, joint stiffness, inflammation, and muscle weakness align with common degenerative and inflammatory joint conditions. The provided diagnostic interface indicates these three conditions have the highest calculated probabilities given the clinical presentation.",Musculoskeletal disorders,osteoarthritis,67,female,No significant medical history.,"Joint stiffness, Inflammation around joints, Weakness in muscles, Stiffness in movements",
