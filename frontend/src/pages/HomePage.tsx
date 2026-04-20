@@ -381,10 +381,10 @@ export default function HomePage() {
           />
           <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
             <Text fontSize="3xl" fontWeight="bold" color={PRIMARY_COLOR}>
-              ISE 547 Project
+              ISE547 Diagnosis Interview Agent
             </Text>
             <Text color={TEXT_MUTED} mt={1} fontSize="xs">
-              Select a session on the left to load its history.
+              Choose a diagnosis thread on the left to review its history.
             </Text>
             {demographicsSubmitted && (
               <div

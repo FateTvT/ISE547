@@ -38,7 +38,7 @@ export function QuestionCard({
           color: '#1E2A4A',
         }}
       >
-        <div style={{ fontSize: '12px', opacity: 0.75, marginBottom: '6px' }}>Question</div>
+        <div style={{ fontSize: '12px', opacity: 0.75, marginBottom: '6px' }}>Checking in</div>
         <div style={{ fontWeight: 600, marginBottom: '10px' }}>{card.question}</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {card.question_choices.map((choice) => (
