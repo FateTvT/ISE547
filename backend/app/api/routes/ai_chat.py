@@ -21,6 +21,7 @@ from app.service.chat_service import (
     build_session_name,
     get_langgraph_session_diagnosis_completed,
     get_langgraph_session_history,
+    get_langgraph_session_pending_user_choice,
     get_langgraph_session_user_choices,
     stream_langgraph_chat,
     stream_mock_chat,
@@ -168,12 +169,16 @@ async def get_session(
     diagnosis_completed = await get_langgraph_session_diagnosis_completed(
         session_id=session_id
     )
+    pending_user_choice = await get_langgraph_session_pending_user_choice(
+        session_id=session_id
+    )
     return SessionDetailResponse(
         id=row.id,
         name=row.name,
         messages=history,
         user_choices=user_choices,
         diagnosis_completed=diagnosis_completed,
+        pending_user_choice=pending_user_choice,
     )
 
 

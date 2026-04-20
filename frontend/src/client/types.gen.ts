@@ -123,6 +123,11 @@ export type SessionDetailResponse = {
      * User Choices
      */
     user_choices?: Array<SessionChoiceResponse>;
+    /**
+     * Diagnosis Completed
+     */
+    diagnosis_completed?: boolean;
+    pending_user_choice?: QuestionCard | null;
 };
 
 /**

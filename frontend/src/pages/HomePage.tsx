@@ -135,6 +135,8 @@ export default function HomePage() {
   const [sessionDetailLoading, setSessionDetailLoading] = useState(false)
   const [sessionDetailError, setSessionDetailError] = useState<string | null>(null)
   const [sessionChoiceHistory, setSessionChoiceHistory] = useState<UserChoiceHistoryItem[]>([])
+  const [diagnosisCompleted, setDiagnosisCompleted] = useState(false)
+  const [pendingUserChoice, setPendingUserChoice] = useState<AiChatQuestionCard | null>(null)
   const [sessions, setSessions] = useState<ChatSessionItem[]>([])
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null)
   const [deletingSessionId, setDeletingSessionId] = useState<string | null>(null)
@@ -195,12 +197,16 @@ export default function HomePage() {
     stopStream()
     setSessionDetailError(null)
     setSessionChoiceHistory([])
+    setDiagnosisCompleted(false)
+    setPendingUserChoice(null)
     setSessionDetailLoading(true)
     setSelectedSessionId(sessionId)
     const detail = await fetchSessionDetail(sessionId)
     if (!detail) {
       replaceMessages([])
       setSessionChoiceHistory([])
+      setDiagnosisCompleted(false)
+      setPendingUserChoice(null)
       setSessionDetailError('Failed to load this thread history.')
       setSessionDetailLoading(false)
       return
@@ -208,6 +214,11 @@ export default function HomePage() {
     setSessionId(sessionId)
     const submittedChoices = (detail.user_choices ?? []).filter(isHistoryChoiceEntry)
     setSessionChoiceHistory(submittedChoices)
+    setDiagnosisCompleted(Boolean(detail.diagnosis_completed))
+    const pendingChoiceCard = isHistoryQuestionCard(detail.pending_user_choice)
+      ? detail.pending_user_choice
+      : null
+    setPendingUserChoice(pendingChoiceCard)
     let submittedChoiceCursor = 0
     const mappedHistoryMessages = detail.messages.map<ChatMessage | null>((message, index) => {
         if (message.role === 'user' || message.role === 'assistant') {
@@ -249,6 +260,16 @@ export default function HomePage() {
     const historyMessages = mappedHistoryMessages.filter(
       (message): message is ChatMessage => message !== null,
     )
+    if (pendingChoiceCard) {
+      historyMessages.push({
+        id: `history-${sessionId}-pending-choice`,
+        role: 'interrupt',
+        content: pendingChoiceCard.question,
+        questionCard: pendingChoiceCard,
+        questionSubmitted: false,
+        questionReadOnly: false,
+      })
+    }
     replaceMessages(historyMessages)
     setSessionDetailLoading(false)
   }
@@ -260,6 +281,9 @@ export default function HomePage() {
     parsedAge >= MIN_ALLOWED_AGE &&
     parsedAge <= MAX_ALLOWED_AGE
   const demographicsReady = hasValidAge && demographicsSubmitted
+  const selectedSessionCompleted = selectedSessionId !== null && diagnosisCompleted
+  const selectedSessionPendingChoice =
+    selectedSessionId !== null && pendingUserChoice !== null
   const demographicsSummary = `Age: ${hasValidAge ? ageInput : 'Not set'} | Sex: ${formatSexLabel(sex)}`
 
   const handleDemographicsSubmit = () => {
@@ -270,7 +294,7 @@ export default function HomePage() {
   }
 
   const handleSend = async () => {
-    if (!demographicsReady) {
+    if (!demographicsReady || selectedSessionPendingChoice) {
       return
     }
     await sendMessage(prompt, parsedAge, (sex || 'undefine') as PatientSex)
@@ -282,6 +306,8 @@ export default function HomePage() {
     setSessionDetailLoading(false)
     setSessionDetailError(null)
     setSessionChoiceHistory([])
+    setDiagnosisCompleted(false)
+    setPendingUserChoice(null)
     replaceMessages([])
     setPrompt('')
     setAgeInput('')
@@ -554,63 +580,99 @@ export default function HomePage() {
               />
             </div>
 
-            <div
-              style={{
-                display: 'flex',
-                gap: '12px',
-                marginTop: '12px',
-                paddingTop: '12px',
-                borderTop: `1px solid ${BORDER_COLOR}`,
-                flexShrink: 0,
-              }}
-            >
-              <Input
-                value={prompt}
-                onChange={(event) => setPrompt(event.target.value)}
-                placeholder="Ask something..."
-                color={TEXT_PRIMARY}
-                bg={SURFACE_COLOR}
-                borderColor={BORDER_COLOR}
-                _placeholder={{ color: TEXT_MUTED }}
-                disabled={loading || inputBlocked || !demographicsReady}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') {
-                    void handleSend()
-                  }
+            {selectedSessionCompleted ? (
+              <div
+                style={{
+                  marginTop: '12px',
+                  paddingTop: '12px',
+                  borderTop: `1px solid ${BORDER_COLOR}`,
+                  flexShrink: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '12px',
                 }}
-              />
-              <Button
-                bg={PRIMARY_COLOR}
-                color="white"
-                _hover={{ bg: PRIMARY_HOVER }}
-                onClick={() => void handleSend()}
-                loading={loading}
-                disabled={inputBlocked || !demographicsReady || !prompt.trim()}
               >
-                Send
-              </Button>
-              <Button
-                variant="outline"
-                color={SECONDARY_COLOR}
-                borderColor={SECONDARY_COLOR}
-                onClick={handleNewDiagnosis}
-                bg="#E8EDFB"
-                _hover={{ bg: '#DCE4F9' }}
+                <Text color={TEXT_MUTED} fontSize="sm">
+                  This diagnosis thread has ended. You can start a new diagnosis.
+                </Text>
+                <Button
+                  variant="outline"
+                  color={SECONDARY_COLOR}
+                  borderColor={SECONDARY_COLOR}
+                  onClick={handleNewDiagnosis}
+                  bg="#E8EDFB"
+                  _hover={{ bg: '#DCE4F9' }}
+                >
+                  New Diagnosis
+                </Button>
+              </div>
+            ) : (
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '12px',
+                  marginTop: '12px',
+                  paddingTop: '12px',
+                  borderTop: `1px solid ${BORDER_COLOR}`,
+                  flexShrink: 0,
+                }}
               >
-                New Diagnosis
-              </Button>
-              <Button
-                variant="outline"
-                color={SECONDARY_COLOR}
-                borderColor={SECONDARY_COLOR}
-                onClick={stopStream}
-                disabled={!loading}
-                bg="#E8EDFB"
-                _hover={{ bg: '#DCE4F9' }}
-              >
-                Stop
-              </Button>
-            </div>
+                <Input
+                  value={prompt}
+                  onChange={(event) => setPrompt(event.target.value)}
+                  placeholder="Ask something..."
+                  color={TEXT_PRIMARY}
+                  bg={SURFACE_COLOR}
+                  borderColor={BORDER_COLOR}
+                  _placeholder={{ color: TEXT_MUTED }}
+                  disabled={
+                    loading || inputBlocked || !demographicsReady || selectedSessionPendingChoice
+                  }
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      void handleSend()
+                    }
+                  }}
+                />
+                <Button
+                  bg={PRIMARY_COLOR}
+                  color="white"
+                  _hover={{ bg: PRIMARY_HOVER }}
+                  onClick={() => void handleSend()}
+                  loading={loading}
+                  disabled={
+                    inputBlocked ||
+                    !demographicsReady ||
+                    selectedSessionPendingChoice ||
+                    !prompt.trim()
+                  }
+                >
+                  Send
+                </Button>
+                <Button
+                  variant="outline"
+                  color={SECONDARY_COLOR}
+                  borderColor={SECONDARY_COLOR}
+                  onClick={handleNewDiagnosis}
+                  bg="#E8EDFB"
+                  _hover={{ bg: '#DCE4F9' }}
+                >
+                  New Diagnosis
+                </Button>
+                <Button
+                  variant="outline"
+                  color={SECONDARY_COLOR}
+                  borderColor={SECONDARY_COLOR}
+                  onClick={stopStream}
+                  disabled={!loading}
+                  bg="#E8EDFB"
+                  _hover={{ bg: '#DCE4F9' }}
+                >
+                  Stop
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>

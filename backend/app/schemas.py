@@ -63,6 +63,7 @@ class SessionDetailResponse(BaseModel):
     messages: list[SessionMessageResponse]
     user_choices: list[SessionChoiceResponse] = Field(default_factory=list)
     diagnosis_completed: bool = False
+    pending_user_choice: QuestionCard | None = None
 
 
 class LoginRequest(BaseModel):

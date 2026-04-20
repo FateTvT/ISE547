@@ -57,6 +57,7 @@ class GraphState(TypedDict, total=False):
     user_choice_history: list[dict[str, Any]]
     user_wants_final_result: bool
     diagnosis_completed: bool
+    pending_user_choice: dict[str, Any] | None
 
 
 class StreamEvent(TypedDict):
@@ -429,7 +430,17 @@ class SimpleLangGraphAgent:
             "user_choice_history": [],
             "user_wants_final_result": False,
             "diagnosis_completed": False,
+            "pending_user_choice": None,
         }
+
+    @staticmethod
+    def _mark_pending_user_choice(state: GraphState) -> dict[str, Any]:
+        """Mark state as waiting for user choice before interrupt."""
+
+        question_card = SimpleLangGraphAgent._normalize_question_card_payload(
+            state.get("question_card")
+        )
+        return {"pending_user_choice": question_card}
 
     async def _first_stage_need_more(
         self, state: GraphState
@@ -512,6 +523,7 @@ class SimpleLangGraphAgent:
                     state=state,
                     selected_choice=selected_choice,
                 ),
+                "pending_user_choice": None,
             }
         human_answer = interrupt(question_card)
         selected_choice = self._extract_choice_id_from_interrupt_answer(human_answer)
@@ -523,6 +535,7 @@ class SimpleLangGraphAgent:
                 selected_choice=resolved_choice,
                 question_card=question_card,
             ),
+            "pending_user_choice": None,
         }
 
     def _apply_user_choice_to_evidence(self, state: GraphState) -> dict[str, Any]:
@@ -633,7 +646,7 @@ class SimpleLangGraphAgent:
         """Route from diagnosis response to interrupt or final summary."""
 
         if state.get("has_kb_question") and not state.get("user_wants_final_result"):
-            return "ask_human_for_kb_choice"
+            return "mark_pending_user_choice"
         return "final_diagnosis_summary"
 
     @staticmethod
@@ -694,6 +707,9 @@ class SimpleLangGraphAgent:
         graph_builder.add_node("first_stage_need_more", self._first_stage_need_more)
         # Stage 2: diagnosis KB iteration with optional human-in-the-loop selection.
         graph_builder.add_node("diagnosis_kb_step", self._diagnosis_kb_step)
+        graph_builder.add_node(
+            "mark_pending_user_choice", self._mark_pending_user_choice
+        )
         graph_builder.add_node("ask_human_for_kb_choice", self._ask_human_for_kb_choice)
         graph_builder.add_node(
             "apply_user_choice_to_evidence", self._apply_user_choice_to_evidence
@@ -713,10 +729,11 @@ class SimpleLangGraphAgent:
             "diagnosis_kb_step",
             self._route_after_diagnosis,
             {
-                "ask_human_for_kb_choice": "ask_human_for_kb_choice",
+                "mark_pending_user_choice": "mark_pending_user_choice",
                 "final_diagnosis_summary": "final_diagnosis_summary",
             },
         )
+        graph_builder.add_edge("mark_pending_user_choice", "ask_human_for_kb_choice")
         graph_builder.add_edge(
             "ask_human_for_kb_choice",
             "apply_user_choice_to_evidence",
@@ -913,6 +930,15 @@ class SimpleLangGraphAgent:
         snapshot = await graph.aget_state(config=config)
         values = getattr(snapshot, "values", {}) or {}
         return bool(values.get("diagnosis_completed", False))
+
+    async def get_pending_user_choice(self, session_id: str) -> dict[str, Any] | None:
+        """Get pending interrupt payload stored in graph state."""
+
+        graph = await self._get_graph()
+        config = {"configurable": {"thread_id": session_id}}
+        snapshot = await graph.aget_state(config=config)
+        values = getattr(snapshot, "values", {}) or {}
+        return self._normalize_question_card_payload(values.get("pending_user_choice"))
 
     async def close(self) -> None:
         """Close SQLite checkpointer resources if they exist."""

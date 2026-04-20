@@ -179,3 +179,11 @@ async def get_langgraph_session_diagnosis_completed(session_id: str) -> bool:
     """Get diagnosis completion flag for one session/thread."""
 
     return await langgraph_agent.is_diagnosis_completed(session_id=session_id)
+
+
+async def get_langgraph_session_pending_user_choice(
+    session_id: str,
+) -> dict[str, object] | None:
+    """Get pending interrupt payload for one session/thread."""
+
+    return await langgraph_agent.get_pending_user_choice(session_id=session_id)
