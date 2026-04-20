@@ -1,0 +1,62 @@
+﻿row_index,age,symptoms,patient_history,input_text,target_y,parse_mentions_count,parse_output_json,diagnosie_output_json,llm_final_output
+0,53,"Lower back pain, Stiff neck, Numb feeling in extremities, Fatigue in lower limbs, spinal pain, nerve compression, lumbar stiffness",Regular physiotherapy sessions.,"Patient age: 53. Symptoms: Lower back pain, Stiff neck, Numb feeling in extremities, Fatigue in lower limbs, spinal pain, nerve compression, lumbar stiffness. Patient history: Regular physiotherapy sessions..",Spinal disorders,5,"{""mentions"": [{""id"": ""s_1190"", ""name"": ""Back pain"", ""common_name"": ""Back pain"", ""orth"": ""spinal pain"", ""type"": ""symptom"", ""choice_id"": ""present""}, {""id"": ""s_2304"", ""name"": ""Paresthesia, upper limbs"", ""common_name"": ""Tingling and numbness of either upper limb"", ""orth"": ""Numb feeling in extremities"", ""type"": ""symptom"", ""choice_id"": ""present""}, {""id"": ""s_2645"", ""name"": ""Fatigue, worsening exercise tolerance"", ""common_name"": ""Weakness during exercise"", ""orth"": ""Fatigue in lower limbs"", ""type"": ""symptom"", ""choice_id"": ""present""}, {""id"": ""s_418"", ""name"": ""Stiff neck"", ""common_name"": ""Stiff neck"", ""orth"": ""Stiff neck"", ""type"": ""symptom"", ""choice_id"": ""present""}, {""id"": ""s_53"", ""name"": ""Back pain, lumbar"", ""common_name"": ""Lower back pain"", ""orth"": ""Lower back pain"", ""type"": ""symptom"", ""choice_id"": ""present""}], ""obvious"": false}","{""question"": {""type"": ""group_single"", ""text"": ""How would you describe your walking difficulty, if you have any?"", ""extras"": {}, ""items"": [{""id"": ""s_2924"", ""name"": ""Limping"", ""choices"": [{""id"": ""present"", ""label"": ""Yes""}, {""id"": ""absent"", ""label"": ""No""}, {""id"": ""unknown"", ""label"": ""Don't know""}]}, {""id"": ""s_2984"", ""name"": ""Inability to stand on either foot"", ""choices"": [{""id"": ""present"", ""label"": ""Yes""}, {""id"": ""absent"", ""label"": ""No""}, {""id"": ""unknown"", ""label"": ""Don't know""}]}, {""id"": ""s_317"", ""name"": ""Stumbling or losing balance while walking"", ""choices"": [{""id"": ""present"", ""label"": ""Yes""}, {""id"": ""absent"", ""label"": ""No""}, {""id"": ""unknown"", ""label"": ""Don't know""}]}, {""id"": ""s_2985"", ""name"": ""None of above"", ""choices"": [{""id"": ""present"", ""label"": ""Yes""}, {""id"": ""absent"", ""label"": ""No""}, {""id"": ""unknown"", ""label"": ""Don't know""}]}]}, ""conditions"": [{""id"": ""c_102"", ""name"": ""Sciatica"", ""common_name"": ""Sciatica"", ""probability"": 0.3371}, {""id"": ""c_1448"", ""name"": ""Lumbosacral radiculopathy"", ""common_name"": ""Lumbosacral neuropathy"", ""probability"": 0.3371}, {""id"": ""c_576"", ""name"": ""Degenerative disc disease of the cervical spine"", ""common_name"": ""Degenerative disc disease of the cervical spine"", ""probability"": 0.2087}, {""id"": ""c_30"", ""name"": ""Degenerative disc disease of the lumbar and sacral spine"", ""common_name"": ""Degeneration of lumbar intervertebral discs"", ""probability"": 0.1955}, {""id"": ""c_218"", ""name"": ""Spinal osteoarthritis"", ""common_name"": ""Degenerative arthritis of the spine"", ""probability"": 0.1361}, {""id"": ""c_981"", ""name"": ""Mechanical back pain"", ""common_name"": ""Back strain"", ""probability"": 0.0852}], ""extras"": {}, ""has_emergency_evidence"": false, ""interview_token"": ""eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJQYXRpZW50RWR1Y2F0aW9uUmV2aXNpb25zIiwidG9rZW5QYXlsb2FkIjp7ImFnZUJ1bmRsZSI6ImFkdWx0IiwicGF0aWVudEVkdWNhdGlvblJldmlzaW9ucyI6eyJjXzEwMiI6IjYiLCJjXzMwIjoiNiIsImNfOTgxIjoiNiJ9fSwiaWF0IjoxNzc2NjYxNjUyfQ.hHskYj59e9boKF3ubwUZ6HaeTlWST6BcN8ZuHgmT9FE""}","### 📋 结构化诊断结论
+结合患者53岁年龄、腰背痛伴颈部僵硬、四肢麻木、下肢乏力及“神经受压”感，系统算法评估提示以**脊柱多节段退行性病变合并神经根受压**为主要临床特征。当前系统未识别到紧急危重证据，但神经症状需密切随访。
+
+---
+
+### 🔍 最可能疾病方向（1-3项）及支持依据
+1. **坐骨神经痛 / 腰骶神经根病（概率 ~33.7%）**
+   - **依据**：主诉“下腰痛、腰椎僵硬、下肢乏力、神经受压感”高度符合L4-S1神经根受刺激或压迫的典型表现；下肢疲劳与麻木常为神经传导受阻的早期信号。
+2. **颈椎退行性椎间盘病变（概率 ~20.9%）**
+   - **依据**：患者明确提及“颈部僵硬”及“四肢麻木”，提示可能合并颈椎间盘退变，导致颈神经根受累或早期脊髓/神经束受压。
+3. **腰椎退行性椎间盘病变 / 脊柱骨关节炎（概率 ~19.6% / 13.6%）**
+   - **依据**：53岁处于脊柱退变高发期；长期腰背痛、僵硬及“规律理疗史”符合慢性退行性脊柱疾病的病程特征，常与神经根病共存。
+
+---
+
+### 🚨 风险警示（红旗征 Red Flags）
+尽管系统提示暂无紧急证据，但出现**四肢麻木**与**下肢乏力**提示神经功能可能受累。若出现以下任一情况，请**立即急诊就医**：
+- 大小便失禁、排尿困难或会阴部（鞍区）麻木（警惕马尾综合征）
+- 下肢肌力进行性下降，导致频繁绊倒、无法独立站立或行走
+- 症状突发剧烈加重，或伴发热、夜间痛醒、不明原因体重下降
+- 理疗后症状不缓解反而进行性恶化
+
+---
+
+### 📝 建议下一步措施
+1. **影像学明确诊断**：尽快完成**颈椎+腰椎MRI**检查，直观评估椎间盘退变程度、椎管狭窄情况及神经根/脊髓受压的具体节段。
+2. **专科面诊与查体**：就诊骨科/脊柱外科或神经内科，进行系统神经系统查体（肌力分级、感觉分布、腱反射、病理征及步态评估）。
+3. **康复方案调整**：在明确压迫节段前，暂停可能加重椎间盘负荷的理疗动作（如过度牵引、暴力推拿）；由持证康复师制定以核心稳定、神经滑动及姿势矫正为主的保守方案。
+4. **日常管理与监测**：避免久坐、弯腰搬重物；记录麻木/乏力范围变化及步行能力，若出现步态不稳（如跛行、平衡丧失）需及时复诊。
+
+---
+
+⚠️ **免责声明**：本分析仅基于您提供的有限症状、病史及算法概率输出，旨在提供健康参考与就医指引。**不能替代执业医师的面诊、体格检查及影像学评估，不作为最终临床诊断或治疗处方。** 如症状持续或加重，请务必及时前往正规医疗机构就诊。"
+1,45,"Aching joints, Puffiness in joint areas, Muscle tiredness, Stiffness in movements",Similar condition diagnosed 4 years ago.,"Patient age: 45. Symptoms: Aching joints, Puffiness in joint areas, Muscle tiredness, Stiffness in movements. Patient history: Similar condition diagnosed 4 years ago..",Musculoskeletal disorders,4,"{""mentions"": [{""id"": ""s_3218"", ""name"": ""Swelling, forearm"", ""common_name"": ""Swollen forearm"", ""orth"": ""Puffiness in joint areas"", ""type"": ""symptom"", ""choice_id"": ""present""}, {""id"": ""s_44"", ""name"": ""Joint pain"", ""common_name"": ""Joint pain"", ""orth"": ""Aching joints"", ""type"": ""symptom"", ""choice_id"": ""present""}, {""id"": ""s_575"", ""name"": ""Joint stiffness"", ""common_name"": ""Stiff joints"", ""orth"": ""Stiffness in movements"", ""type"": ""symptom"", ""choice_id"": ""present""}, {""id"": ""s_650"", ""name"": ""Muscle weakness"", ""common_name"": ""Weak muscles"", ""orth"": ""Muscle tiredness"", ""type"": ""symptom"", ""choice_id"": ""present""}], ""obvious"": false}","{""question"": {""type"": ""single"", ""text"": ""Have you been diagnosed with psoriasis?"", ""extras"": {}, ""items"": [{""id"": ""p_263"", ""name"": ""Diagnosed psoriasis"", ""choices"": [{""id"": ""present"", ""label"": ""Yes""}, {""id"": ""absent"", ""label"": ""No""}, {""id"": ""unknown"", ""label"": ""Don't know""}]}]}, ""conditions"": [{""id"": ""c_104"", ""name"": ""Rheumatoid arthritis"", ""common_name"": ""Rheumatoid arthritis"", ""probability"": 0.369}, {""id"": ""c_948"", ""name"": ""Shoulder impingement syndrome"", ""common_name"": ""Shoulder impingement syndrome"", ""probability"": 0.3192}, {""id"": ""c_953"", ""name"": ""Psoriatic arthritis"", ""common_name"": ""Psoriatic arthritis"", ""probability"": 0.1383}, {""id"": ""c_219"", ""name"": ""Hand osteoarthritis"", ""common_name"": ""Hand osteoarthritis"", ""probability"": 0.0653}, {""id"": ""c_220"", ""name"": ""Knee osteoarthritis"", ""common_name"": ""Knee osteoarthritis"", ""probability"": 0.0473}, {""id"": ""c_910"", ""name"": ""Baker's cyst"", ""common_name"": ""Baker's cyst of knee"", ""probability"": 0.0455}, {""id"": ""c_937"", ""name"": ""Olecranon bursitis"", ""common_name"": ""Olecranon bursitis"", ""probability"": 0.0405}, {""id"": ""c_112"", ""name"": ""Systemic scleroderma"", ""common_name"": ""Systemic scleroderma"", ""probability"": 0.0367}], ""extras"": {}, ""has_emergency_evidence"": false, ""interview_token"": ""eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJQYXRpZW50RWR1Y2F0aW9uUmV2aXNpb25zIiwidG9rZW5QYXlsb2FkIjp7ImFnZUJ1bmRsZSI6ImFkdWx0IiwicGF0aWVudEVkdWNhdGlvblJldmlzaW9ucyI6eyJjXzEwNCI6IjcifX0sImlhdCI6MTc3NjY2MTcwMn0.5l5Yzvb_D9GOR8hekKyJrv0Ljdg-pAuqZfc9GAnf70Q""}","基于您提供的患者信息与系统辅助分析结果，以下为结构化临床分诊建议：
+
+### 🔍 诊断结论
+患者为45岁成人，主诉多关节酸痛、关节周围肿胀、肌肉疲劳及活动僵硬，且有4年前类似病史。综合症状特征与算法评估，**高度提示慢性炎症性关节病变**，目前系统未识别出紧急危重指征，但需尽快完善风湿免疫相关检查以明确分型。
+
+### 📋 最可能的疾病方向（1-3项）及依据
+1. **类风湿关节炎（Rheumatoid Arthritis）**
+   - **支持依据**：系统评估概率最高（36.9%）。典型表现为对称性多关节疼痛、肿胀、晨僵及伴随的肌肉疲劳；45岁为高发年龄段；4年前类似病史提示慢性、复发性病程，高度符合RA的临床演变特征。
+2. **银屑病关节炎（Psoriatic Arthritis）**
+   - **支持依据**：系统概率第三（13.8%），且专门追问银屑病史。该病同样表现为关节肿痛与僵硬，常累及指/趾关节或脊柱，部分患者关节症状可先于皮肤皮损出现，需结合皮肤科体征进一步鉴别。
+3. **肩峰下撞击综合征（Shoulder Impingement Syndrome）**
+   - **支持依据**：系统概率第二（31.9%）。但该病通常为局限性肩部疼痛与特定角度活动受限，较少引起广泛性关节肿胀与全身僵硬。可能为局部代偿性劳损或合并存在的机械性问题，需结合具体受累关节分布判断。
+
+### 🚨 风险警示（红旗信号）
+当前系统提示 `has_emergency_evidence: false`（暂无紧急证据），但若出现以下任一情况，请**立即急诊就医**：
+- 突发单关节剧烈红、肿、热、痛伴发热（警惕化脓性关节炎或急性痛风）
+- 关节功能进行性丧失或无法承重
+- 持续高热、不明原因体重骤降、严重乏力或夜间痛醒
+- 出现新发皮疹、口腔溃疡、眼红痛或呼吸困难等全身系统受累表现
+
+### 📝 建议下一步
+1. **专科就诊**：首选**风湿免疫科**；若既往或现有皮肤银屑病/指甲凹陷/点状出血，建议联合皮肤科会诊。
+2. **实验室检查**：血常规、ESR、CRP（评估炎症活动度）；类风湿因子（RF）、抗CCP抗体（RA特异性指标）；ANA谱、HLA-B27（排查其他自身免疫病）；尿酸（排除痛风）。
+3. **影像学评估**：受累关节X线或高频超声/MRI，重点观察滑膜增厚、关节积液、骨侵蚀或肌腱/滑囊病变。
+4. **症状记录**：详细记录晨僵持续时间（分钟）、每日肿胀关节数量、疼痛诱因及缓解因素，便于医生量化评估。
+
+---
+⚠️ **免责声明**：本分析仅基于您提供的有限文本信息与算法辅助输出，**不能替代执业医师的面对面问诊、体格检查与实验室/影像学确诊**。关节疾病的早期规范干预对预后至关重要，请务必前往正规医疗机构进行完整评估与个体化诊疗。"
