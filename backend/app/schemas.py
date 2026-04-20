@@ -62,6 +62,7 @@ class SessionDetailResponse(BaseModel):
     name: str
     messages: list[SessionMessageResponse]
     user_choices: list[SessionChoiceResponse] = Field(default_factory=list)
+    diagnosis_completed: bool = False
 
 
 class LoginRequest(BaseModel):

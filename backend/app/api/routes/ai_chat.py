@@ -19,6 +19,7 @@ from app.schemas import (
 )
 from app.service.chat_service import (
     build_session_name,
+    get_langgraph_session_diagnosis_completed,
     get_langgraph_session_history,
     get_langgraph_session_user_choices,
     stream_langgraph_chat,
@@ -164,11 +165,15 @@ async def get_session(
 
     history = await get_langgraph_session_history(session_id=session_id)
     user_choices = await get_langgraph_session_user_choices(session_id=session_id)
+    diagnosis_completed = await get_langgraph_session_diagnosis_completed(
+        session_id=session_id
+    )
     return SessionDetailResponse(
         id=row.id,
         name=row.name,
         messages=history,
         user_choices=user_choices,
+        diagnosis_completed=diagnosis_completed,
     )
 
 

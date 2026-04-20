@@ -173,3 +173,9 @@ async def get_langgraph_session_user_choices(
     """Get persisted user choice history for one session/thread."""
 
     return await langgraph_agent.get_user_choice_history(session_id=session_id)
+
+
+async def get_langgraph_session_diagnosis_completed(session_id: str) -> bool:
+    """Get diagnosis completion flag for one session/thread."""
+
+    return await langgraph_agent.is_diagnosis_completed(session_id=session_id)

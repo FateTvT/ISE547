@@ -37,6 +37,7 @@ logger = logging.getLogger("uvicorn.error")
 FINAL_RESULT_CHOICE_ID = "__view_final_result__"
 EVIDENCE_CHOICE_PREFIX = "evidence"
 GROUP_SINGLE_CHOICE_PREFIX = "group_single"
+ITEM_PRESENT_CHOICE_PREFIX = "item_present"
 
 
 class GraphState(TypedDict, total=False):
@@ -55,6 +56,7 @@ class GraphState(TypedDict, total=False):
     selected_kb_choice: str
     user_choice_history: list[dict[str, Any]]
     user_wants_final_result: bool
+    diagnosis_completed: bool
 
 
 class StreamEvent(TypedDict):
@@ -128,6 +130,12 @@ class SimpleLangGraphAgent:
         return f"{GROUP_SINGLE_CHOICE_PREFIX}::{evidence_id}"
 
     @staticmethod
+    def _build_item_present_choice_token(evidence_id: str) -> str:
+        """Build a token for non-group-single top-level symptom selections."""
+
+        return f"{ITEM_PRESENT_CHOICE_PREFIX}::{evidence_id}"
+
+    @staticmethod
     def _parse_evidence_choice_token(choice_token: str) -> tuple[str, str] | None:
         """Parse evidence token and return evidence ID with choice ID."""
 
@@ -146,6 +154,18 @@ class SimpleLangGraphAgent:
 
         parts = choice_token.split("::")
         if len(parts) != 2 or parts[0] != GROUP_SINGLE_CHOICE_PREFIX:
+            return None
+        evidence_id = parts[1].strip()
+        if not evidence_id:
+            return None
+        return evidence_id
+
+    @staticmethod
+    def _parse_item_present_choice_token(choice_token: str) -> str | None:
+        """Parse top-level symptom token and return selected evidence ID."""
+
+        parts = choice_token.split("::")
+        if len(parts) != 2 or parts[0] != ITEM_PRESENT_CHOICE_PREFIX:
             return None
         evidence_id = parts[1].strip()
         if not evidence_id:
@@ -274,24 +294,17 @@ class SimpleLangGraphAgent:
                     )
                 )
         else:
-            has_multi_items = len(question.items) > 1
             for item in question.items:
-                item_name = item.name.strip()
-                for choice in item.choices:
-                    label = (
-                        f"{item_name}: {choice.label}"
-                        if has_multi_items and item_name
-                        else choice.label
+                label = item.name.strip() or item.id
+                question_choices.append(
+                    QuestionChoice(
+                        choice_id=SimpleLangGraphAgent._build_item_present_choice_token(
+                            item.id
+                        ),
+                        choice=label,
+                        selected=False,
                     )
-                    question_choices.append(
-                        QuestionChoice(
-                            choice_id=SimpleLangGraphAgent._build_evidence_choice_token(
-                                item.id, choice.id
-                            ),
-                            choice=label,
-                            selected=False,
-                        )
-                    )
+                )
         question_choices.append(
             QuestionChoice(
                 choice_id=FINAL_RESULT_CHOICE_ID,
@@ -415,6 +428,7 @@ class SimpleLangGraphAgent:
             "has_parse_evidence": has_parse_evidence,
             "user_choice_history": [],
             "user_wants_final_result": False,
+            "diagnosis_completed": False,
         }
 
     async def _first_stage_need_more(
@@ -527,6 +541,20 @@ class SimpleLangGraphAgent:
                 state=state,
             )
 
+        selected_item_present_evidence_id = self._parse_item_present_choice_token(
+            selected_choice
+        )
+        if selected_item_present_evidence_id is not None:
+            next_evidence = self._update_evidence(
+                state.get("evidence", []),
+                evidence_id=selected_item_present_evidence_id,
+                choice_id="present",
+            )
+            return {
+                "evidence": next_evidence,
+                "user_wants_final_result": False,
+            }
+
         parsed_choice = self._parse_evidence_choice_token(selected_choice)
         if parsed_choice is None:
             return {"user_wants_final_result": True}
@@ -579,7 +607,7 @@ class SimpleLangGraphAgent:
                     "but I could not format the final summary right now."
                 )
             )
-            return {"messages": [fallback]}
+            return {"messages": [fallback], "diagnosis_completed": True}
 
         response_text = self._normalize_message_content(llm_response.content).strip()
         if not response_text:
@@ -587,7 +615,10 @@ class SimpleLangGraphAgent:
                 "I generated the diagnosis result, but the final summary is empty. "
                 "Please try again."
             )
-        return {"messages": [AIMessage(content=response_text)]}
+        return {
+            "messages": [AIMessage(content=response_text)],
+            "diagnosis_completed": True,
+        }
 
     @staticmethod
     def _route_after_parse(state: GraphState) -> str:
@@ -873,6 +904,15 @@ class SimpleLangGraphAgent:
                 normalized_item["question_card"] = question_card
             normalized.append(normalized_item)
         return normalized
+
+    async def is_diagnosis_completed(self, session_id: str) -> bool:
+        """Check whether diagnosis is marked completed in graph state."""
+
+        graph = await self._get_graph()
+        config = {"configurable": {"thread_id": session_id}}
+        snapshot = await graph.aget_state(config=config)
+        values = getattr(snapshot, "values", {}) or {}
+        return bool(values.get("diagnosis_completed", False))
 
     async def close(self) -> None:
         """Close SQLite checkpointer resources if they exist."""
