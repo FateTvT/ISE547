@@ -1,6 +1,8 @@
 # Frontend
 
 This folder contains the React + TypeScript frontend for the ISE547 AI Triage Agent.
+Username: ISE547
+Password: zkj666
 
 ## Main Features
 
