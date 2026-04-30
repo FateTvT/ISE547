@@ -1,5 +1,41 @@
 # ISE547
+# AI Triage Agent for Structured Patient Intake and Guided Clinical Routing
 
+This repository contains the final project for ISE 547. The project is a full-stack AI triage agent that converts free-text patient symptom descriptions into structured intake information, asks follow-up questions when the case is ambiguous, consults a diagnosis knowledge base, and produces interpretable care-routing recommendations.
+
+The system is designed as an intake-and-routing assistant, not as a replacement for licensed medical diagnosis.
+
+## Demo
+
+- Project website: https://ise547.link/home
+- Demo username: ISE547
+- Demo password: zkj666
+
+## Project Overview
+
+Patients often describe symptoms in incomplete and unstructured language. However, real healthcare workflows require structured intake, clarification, and safe next-step guidance. This project addresses that gap by combining a multi-step AI interview workflow with external diagnosis support and a deployable web interface.
+
+The final system includes:
+
+- A React + TypeScript frontend for patient intake and chat interaction
+- A FastAPI backend for API logic and workflow execution
+- A LangGraph-based state machine for symptom parsing, follow-up questioning, and final summary generation
+- OpenRouter-hosted language models for natural-language interaction
+- Infermedica API support for symptom parsing and diagnosis guidance
+- SQLite-based session and conversation history
+- Docker Compose support for local deployment
+- Batch evaluation scripts for comparing the interview agent with prompt-only LLM baselines
+
+## Repository Structure
+
+```text
+ISE547/
+├── backend/        # FastAPI backend, LangGraph workflow, evaluation scripts, data processing
+├── frontend/       # React + TypeScript frontend
+├── ops/            # Deployment scripts and production operation files
+├── docker-compose.yml
+├── .env.example
+└── README.md
 Quick setup and architecture notes for the ISE547 project.
 
 ## Requirements
