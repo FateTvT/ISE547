@@ -1,3 +1,32 @@
+# Frontend
+
+This folder contains the React + TypeScript frontend for the ISE547 AI Triage Agent.
+
+## Main Features
+
+- Patient login and intake interface
+- Symptom description input
+- Streaming chat interaction with the backend
+- Follow-up question cards
+- Final triage summary display
+- Session-based user experience
+
+## Tech Stack
+
+- React
+- TypeScript
+- Vite
+- Bun
+- CSS
+
+## Local Development
+
+From the repository root:
+
+```bash
+cd frontend
+bun install
+bun run dev
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
