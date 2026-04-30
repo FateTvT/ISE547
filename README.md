@@ -35,14 +35,6 @@ Claude-3.5-haiku
 Qwen-2.5-7B-Instruct
 Llama-3.1-8B-Instruct
 
-Main results:
-
-System	Category Accuracy	Top-1 Subtype Accuracy	Top-3 Subtype Hit Rate	Format Valid Rate
-Diagnosis interview agent	0.867	0.475	0.892	1.000
-Best GPT-4o-mini baseline	0.850	0.425	0.842	1.000
-
-The results suggest that structured intake, stateful follow-up interaction, and knowledge-base grounding improve fine-grained subtype resolution compared with one-shot prompting.
-
 Safety Note
 
 This project is an educational prototype. It is intended for structured patient intake and care-routing support only. It should not be used as a substitute for licensed medical diagnosis, emergency care, or professional clinical judgment.
